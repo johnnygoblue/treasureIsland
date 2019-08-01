@@ -113,7 +113,74 @@ right away, because the existence of a path has been found; jump to Step #6
 
 ## Command Line Interfaces (CLI)
 
-Discussion
+The solution you generate will run from the command line, in the spirit of the
+Unix tradition.
+
+### Silence is Golden
+
+Most programs run with as little output as possible. Often, programs that are
+able to successfully execute will print nothing at all. Programs that generate
+output will usually display the smallest possible output that registers success
+or failure. By default, this solution will generate a single line of output.
+
+### Modifying Behavior
+
+Programs often offer *options* that can change how they work at runtime. These
+are specified at the command line in the form of "short options" which are a
+single character following a single hyphen (eg. -o), or "long options" which use
+full words following a double hyphen (eg. --a-long-option). Multiple short
+options can be combined (eg. -al is equivalent to -a -l). Both short and long
+options can also accept *arguments*, with some options prohibiting, requiring,
+or optionally allowing arguments.
+
+Q: Why both short and long options?
+
+A1: There are only 52 different single letter options, but an infinite number of
+    long options can be created.
+
+A2: Two programs can implement the same functionality using different options
+    (eg. -R or -r for --recursive), but full words are more easily remembered.
+
+A3: Short options are quick and easy to type at the command line, and when
+    programs are used in scripts, long options make scripts more readable.
+
+Like many programs, the solution to this problem will implement both short and
+long options. Some options will be implemented with no arguments, and others
+will be implemented with required arguments. *An option with a required argument
+is still optional and might not be specified at the command line, but if it is
+specified, an argument must be provided.*
+
+The complicated task of parsing options and arguments is made easier with a
+classic library `<getopt.h>` that provides both `getopt()` for handling short
+options and `getopt_long()` for handling short and long options. A helpful
+reference can be found at [getopt man page](https://linux.die.net/man/3/getopt).
+
+### Using Standard Input, Standard Output, Standard Error, and Redirection
+
+Most command line shells allow programs to send output to or read input from
+files. This is accomplished by using the `>` and `<` operators. An example that
+runs `program` while reading input from `input.file` and writing output to
+`output.file`:
+
+```bash
+% program < input.file > output.file
+```
+
+Reading input from a file can be thought of as temporarily disconnecting the
+keyboard and getting all input from the file specified. The file must exist or
+an error will occur. Also, problems will arise if the data in the input file is
+not saved in the exact order that it is requested by the program.
+
+Writing output to a file can be thought of as temporarily disconnecting the
+screen and sending everything that would be printed directly to a file on disk.
+The file need not exist before redirection, it will be created as necessary. If
+the file already exists, its original contents will be replaced (gone forever)
+with the new output.
+
+Redirection can be done on input, output, both, or neither. A good reference can
+be found at
+[Thoughtbot](https://thoughtbot.com/blog/input-output-redirection-in-the-shell).
+
 
 ## Input File
 
