@@ -51,11 +51,11 @@ favor different methods of exploration. Most days, the Captain will navigate
 the ship is usually more methodical.
 
 The Captain will travel from island to island with their own log and future
-plans, moving only over water locations ('o'). As soon as land is discovered
+plans, moving only over water locations ('.'). As soon as land is discovered
 while sailing, a search party is put ashore before any other discovery is
 attempted. Once put ashore to lead a search party, the First Mate will search
 all available land with a separate log and plans before returning to the ship,
-moving only over land locations ('.'). Any water (inland or open ocean)
+moving only over land locations ('o'). Any water (inland or open ocean)
 encountered by the search party is completely ignored.  Neither the Captain nor
 the First Mate will ever accidentally overlook treasure ('$'), and both are
 unable to move over impassable terrain ('#').
@@ -86,7 +86,7 @@ hunts (over land). Use the following hunt algorithm with the container (stack or
 queue) that suits the hunter in charge.
 
 1. Add the starting location to the container. 
-  - For the Captain, this is '@' on the original map
+  - For the Captain, this is '@', a water location, on the map
   - For the First Mate, this is wherever the search party was put ashore
 2. If the container is empty, part of the hunt has ended. If not, set the
 "current location" to the "next" available location in the container (front for
@@ -158,9 +158,9 @@ reference can be found at [getopt man page](https://linux.die.net/man/3/getopt).
 ### Using Standard Input, Standard Output, Standard Error, and Redirection
 
 Most command line shells allow programs to send output to or read input from
-files. This is accomplished by using the `>` and `<` operators. An example that
-runs `program` while reading input from `input.file` and writing output to
-`output.file`:
+files. This is accomplished by using the Input Redirect Operator (`>`) or the
+Output Redirection Operator (`<`). The following example runs `program` while
+reading input from `input.file` and writing output to `output.file`:
 
 ```bash
 % program < input.file > output.file
@@ -169,18 +169,63 @@ runs `program` while reading input from `input.file` and writing output to
 Reading input from a file can be thought of as temporarily disconnecting the
 keyboard and getting all input from the file specified. The file must exist or
 an error will occur. Also, problems will arise if the data in the input file is
-not saved in the exact order that it is requested by the program.
+not saved in the exact order that it is requested by the program. This technique
+is known as input redirection, and replaces keyboard input with "standard
+input". Standard input can be accessed in C++ by using `std::cin`.
 
 Writing output to a file can be thought of as temporarily disconnecting the
 screen and sending everything that would be printed directly to a file on disk.
 The file need not exist before redirection, it will be created as necessary. If
 the file already exists, its original contents will be replaced (gone forever)
-with the new output.
+with the new output. This technique is known as output redirection and sends
+text that would go to "standard output" and display on the screen, directly to
+the given file. Standard output can be accessed in C++ by using `std::cout`.
 
-Redirection can be done on input, output, both, or neither. A good reference can
-be found at
+Redirection can be done on input, output, both, or neither, as well as on
+"standard error", which is accessed with `std::cerr` and redirected with the
+Error Redirection Operator (`2>`). A good reference can be found at
 [Thoughtbot](https://thoughtbot.com/blog/input-output-redirection-in-the-shell).
 
+Often, a program will read from a file specified at the command line, or if one
+is not specified, it will try to read from standard input. Programs that do
+this perform identically when invoked with the following two commands:
+
+```bash
+% program < input.file   # Input redirection imitating keyboard input
+% program input.file     # Data read directly from an opened file
+```
+
+To accomplish this in C++, use polymorphism and a few conditionals, and the
+program can be written to handle input independently of how it is invoked. This
+pseudocode shows the technique:
+
+```c++
+#include <fstream>
+#include <iostream>
+#include <string>
+
+
+...
+    ifstream infile;  // Used to read from a file if a filename is given
+    string filename;  // Use getopt_long and argc + argv to get this value if it
+                      // is specified at the command line, it's otherwise empty
+
+    if (!filename.empty()) {  // The filename was specified at the command line
+        if (!infile.open(filename)) {  // Open the file with a safety check
+            cerr << "Unable to open input file: " << filename << endl;
+            exit(1);
+        }
+    }
+    istream &in = (infile.is_open()) ? infile : cin;  // Polymorphism & conditional
+
+    // Do the remainder of input using the stream extraction operator and 'in'
+    // If a file was specified 'in == infile'
+    // If no file was specified 'in == cin'
+    in >> file_type >> map_size;
+
+    infile.close();  // Close file after use, it's good housekeeping
+...
+```
 
 ## Input File
 
@@ -215,11 +260,12 @@ See the Example Map above for a sample of a map format file.
 ### List Format
 
 After the front matter, if the first non-comment byte is 'L', the file is in
-list format. There will be zero or more lines that are either comments, blank,
-or a coordinate/terrain triple (CTT). When reading list format files, ignore any
-blank lines or comments that occur after the front matter. A CTT is two non-
-negative integers followed by a single character to represent the terrain at
-that location (refer to the Terrain Legend above). These three values will be
+list format. Following the map size integer, there will be two or more lines
+(start location and treasure location at least) that are either blank or a
+coordinate/terrain triple (CTT). When reading list format files, ignore any
+blank lines that occur after the front matter. A CTT is two non-negative
+integers followed by a single character to represent the terrain at that
+location (refer to the Terrain Legend above). These three values will be
 separated by commas followed by a newline character, with no other whitespace
 characters on the line.
 
@@ -260,30 +306,145 @@ Discussion
 ### Supported Options
 
 * --captain <"queue"|"stack">, -c <"queue"|"stack">: The route-finding container
-used while searching in the water. Default: stack
+used while searching in the water (default: stack)
 * --first-mate <"queue"|"stack">, -f <"queue"|"stack">: The route-finding
-container used while searching on land. Default: queue
-* --help, -h: Print a useful help message and exit.
-* --output <M|L>, -o <M|L>: Display a treasure map or list of locations along
-the route.
-* --search-pattern <order>, -p <order>: The order of exploration around the
-current location. Default: nesw
-* --stats, -s: Display statistics after search is complete.
-* --verbose, -v: Print verbose output while searching.
+container used while searching on land (default: queue)
+* --search-pattern <order>, -p <order>: The order of exploration of adjacent
+tiles around the current location (default: nesw)
+* --help, -h: Print a useful help message and exit
+* --show-path <M|L>, -w <M|L>: Display a treasure map or the list of locations
+that describe the path
+* --stats, -s: Display statistics after the search is complete
+* --verbose, -v: Print verbose output while searching
 
 ## Output Format
 
-Discussion
+### Search Results
+
+After a treasure hunt, one line is printed describing the success or failure of
+the hunt:
+
+```bash
+No treasure found after searching 5 locations.
+```
+
+or
+
+```bash
+Treasure found at 0,0 with path length 8.
+```
+
+where the number of searched locations, the treasure location, and the path
+length are all calculated based on the input file and command line options
+provided.
 
 ### Option: Verbose
 
+If the verbose option is requested at the command line (`--verbose` or `-v`),
+output additional information while the search is happening. This will always
+appear first, if specified, and will consist of a start message, zero or more
+ashore messages, one search party result for every trip ashore, and a failure
+message if no treasure is found.
+
+```bash
+Treasure hunt started at: 4,4
+Went ashore at: 3,3
+Searching island... party returned with no treasure
+Went ashore at: 1,1
+Searching island... party found treasure at 0,0
+```
+
+or
+
+```bash
+Treasure hunt started at: 4,4
+Went ashore at: 3,3
+Searching island... party returned with no treasure
+Treasure hunt failed
+```
+
 ### Option: Stats
 
-### Option: Output Map or List
+If the stats option is requested at the command line (`--stats` or `-s`), output
+a statistical summary after the search has completed. This will appear after
+verbose messages (if both are specified), and before the "Search Results."
+
+```bash
+--- STATS ---
+Starting Location: 4,4
+Total Sail: 8
+Total Land: 6
+Went Ashore: 2
+Path Length: 8
+Treasure Location: 0,0
+--- STATS ---
+```
+
+The total lines show the number of tiles searched. If a location is added to a
+container but never removed, it is *NOT* counted in its respective total. A line
+displaying the number of search parties that went ashore must be included. If a
+path to the treasure is found, include a line with the length of the path, and
+another line with the location of the treasure. Path length doesn't count the
+starting and ending locations, but rather the the steps between them. A hunt
+with the start location adjacent to the treasure location will have a path
+length of one.
+
+```
+# Treasure hunt with path length one
+M
+2
+.$
+.@
+```
+
+```
+# Treasure hunt with path length two
+M
+3
+.$o
+.o.
+.@.
+```
+
+If no path to the treasure is found, omit the last two lines of stats.
+
+```bash
+--- STATS ---
+Starting Location: 4,4
+Total Sail: 8
+Total Land: 6
+Went Ashore: 2
+--- STATS ---
+```
+
+### Option: Show Path as Map or List
+
+If the show path option is requested at the command line (`--show-path` or
+`-w`), output the path discovered from the start location to the treasure. The
+show path option requires an argument which will be a single upper-case
+character, an `M` to display a treasure map or an `L` to display the locations
+that define the path. This will appear after verbose messages and stats (if
+either or both are specified), and before the "Search Results."
 
 #### Treasure Map
 
+A "treasure map" is the original map with a path overlaid from the start
+location to the treasure. The path is drawn using vertical lines (`|`),
+horizontal lines (`-`), and corners (`+`), with the start location unchanged
+(`@`) and the treasure overwritten with an `X`.
+
+```
+X+...
+o|...
+#|.o.
+.|oo.
+.+--@
+```
+
 #### Coordinate List
+For more on the path length versus the number of locations, and the off-by-one
+error that can result from this type of problem, read
+[off-by-one](https://en.wikipedia.org/wiki/Off-by-one_error#Fencepost_error).
 
 ## Error Handling and Assumptions
 , if any other
