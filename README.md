@@ -82,8 +82,11 @@ expedition can choose another search pattern at the command line.
 ### The Hunt Algorithm
 
 The treasure hunt will be one large hunt (over water) with zero or more smaller
-hunts (over land). Use the following hunt algorithm with the container (stack or
-queue) that suits the hunter in charge.
+hunts (over land). The Captain always begins the hunt from the start location
+(`@`), which is a water location. The First Mate begins a search party hunt from
+a land location that was discovered by the Captain. Use the following hunt
+algorithm with the container (stack or queue) and location that suits the hunter
+in charge.
 
 1. Add the starting location to the container. 
   - For the Captain, this is '@', a water location, on the map
