@@ -273,7 +273,7 @@ separated by commas followed by a newline character, with no other whitespace
 characters on the line.
 
 ```
-<row>,<col>,<terrain>
+<row> <col> <terrain>
 ```
 
 List format files may specify a subset of all CTT in a map. If fewer than NxN
