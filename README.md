@@ -73,11 +73,11 @@ Stack-based routing tending to continue along a recent heading, eventually
 covering the search area, while queue-based routing covers the search area in
 ever-increasing radii.
 
-### The Search Pattern
+### The Search Order
 
-When discovering new locations use the Search Pattern to determine the order
-of investigation. By default the search pattern is North, East, South, West. Any
-expedition can choose another search pattern at the command line.
+When discovering new locations use the Search Order to determine the order of
+investigation. By default the search order is North, East, South, West. Any
+expedition can choose another search order at the command line.
 
 ### The Hunt Algorithm
 
@@ -308,17 +308,17 @@ Discussion
 
 ### Supported Options
 
+* --help, -h: Print a useful help message and exit
 * --captain <"queue"|"stack">, -c <"queue"|"stack">: The route-finding container
 used while searching in the water (default: stack)
 * --first-mate <"queue"|"stack">, -f <"queue"|"stack">: The route-finding
 container used while searching on land (default: queue)
-* --search-pattern <order>, -p <order>: The order of exploration of adjacent
+* --search-order <order>, -o <order>: The order of exploration of adjacent
 tiles around the current location (default: nesw)
-* --help, -h: Print a useful help message and exit
-* --show-path <M|L>, -w <M|L>: Display a treasure map or the list of locations
-that describe the path
-* --stats, -s: Display statistics after the search is complete
 * --verbose, -v: Print verbose output while searching
+* --stats, -s: Display statistics after the search is complete
+* --show-path <M|L>, -p <M|L>: Display a treasure map or the list of locations
+that describe the path
 
 ## Output Format
 
