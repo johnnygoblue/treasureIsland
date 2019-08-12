@@ -214,7 +214,8 @@ pseudocode shows the technique:
                       // is specified at the command line, it's otherwise empty
 
     if (!filename.empty()) {  // The filename was specified at the command line
-        if (!infile.open(filename)) {  // Open the file with a safety check
+        infile.open(filename);
+        if (!infile.is_open()) {  // Safety check for opening the file
             cerr << "Unable to open input file: " << filename << endl;
             exit(1);
         }
