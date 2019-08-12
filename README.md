@@ -21,7 +21,7 @@ used to describe terrain.
 * o: Land
 * #: Impassable (land or water)
 * @: Starting location (always water)
-* $: Treasure location
+* $: Treasure location (always land)
 
 The grid is a complete representation of all relevant features in the chain but
 it does not include a path from the start to the treasure. Using the algorithm
