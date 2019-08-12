@@ -269,8 +269,7 @@ coordinate/terrain triple (CTT). When reading list format files, ignore any
 blank lines that occur after the front matter. A CTT is two non-negative
 integers followed by a single character to represent the terrain at that
 location (refer to the Terrain Legend above). These three values will be
-separated by commas followed by a newline character, with no other whitespace
-characters on the line.
+separated by spaces and followed by a newline character.
 
 ```
 <row> <col> <terrain>
@@ -290,16 +289,16 @@ An example of one list format file of the example map above follows.
 # Two small islands with treasure in the NW corner and start in the SE corner.
 L
 5
-0,0,$
-4,4,@
-2,0,#
-0,1,o
-1,0,o
-1,1,o
-2,2,.
-2,3,o
-3,2,o
-3,3,o
+0 0 $
+4 4 @
+2 0 #
+0 1 o
+1 0 o
+1 1 o
+2 2 .
+2 3 o
+3 2 o
+3 3 o
 ```
 
 ## The Command Line Interface (CLI)
