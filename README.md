@@ -265,15 +265,15 @@ See the Example Map above for a sample of a map format file.
 
 After the front matter, if the first non-comment byte is 'L', the file is in
 list format. Following the map size integer, there will be two or more lines
-(start location and treasure location at least) that are either blank or a
-coordinate/terrain triple (CTT). When reading list format files, ignore any
-blank lines that occur after the front matter. A CTT is two non-negative
-integers followed by a single character to represent the terrain at that
-location (refer to the Terrain Legend above). These three values will be
-separated by spaces and followed by a newline character.
+(start location and treasure location at least) that are coordinate/terrain
+triples (CTT), and any number of blank lines. A CTT is two non-negative
+integers, row and column, followed by a single character to represent the
+terrain at that location (refer to the Terrain Legend above). These three values
+will be separated by spaces and followed by a newline character. When reading
+list format files, ignore any blank lines that occur.
 
 ```
-<row> <col> <terrain>
+CTT: <row> <col> <terrain>
 ```
 
 List format files may specify a subset of all CTT in a map. If fewer than NxN
@@ -281,7 +281,7 @@ CTT are provided, missing locations are assumed to be water (.). No location
 will be specified more once in a list format file, so no more than NxN locations
 can be included. The order of CTT are unspecified.
 
-An example of one list format file of the example map above follows.
+One possible list format file of the example map above follows.
 
 ### Example List
 
@@ -310,7 +310,7 @@ Discussion
 
 * --help, -h: Print a useful help message and exit
 * --captain <"queue"|"stack">, -c <"queue"|"stack">: The route-finding container
-used while searching in the water (default: stack)
+used while sailing in the water (default: stack)
 * --first-mate <"queue"|"stack">, -f <"queue"|"stack">: The route-finding
 container used while searching on land (default: queue)
 * --search-order <order>, -o <order>: The order of exploration of adjacent
@@ -322,7 +322,7 @@ that describe the path
 
 ## Output Format
 
-### Search Results
+### Treasure Hunt Results
 
 After a treasure hunt, one line is printed describing the success or failure of
 the hunt:
@@ -338,16 +338,16 @@ Treasure found at 0,0 with path length 8.
 ```
 
 where the number of searched locations, the treasure location, and the path
-length are all calculated based on the input file and command line options
-provided.
+length are all calculated based on a search of the input file given the command
+line options provided.
 
 ### Option: Verbose
 
-If the verbose option is requested at the command line (`--verbose` or `-v`),
-output additional information while the search is happening. This will always
-appear first, if specified, and will consist of a start message, zero or more
-ashore messages, one search party result for every trip ashore, and a failure
-message if no treasure is found.
+If the verbose option is specified at the command line (`--verbose` or `-v`),
+output additional information while the search is happening. Verbose output, if
+requested, will always appear before the results and will consist of a start
+message, zero or more ashore messages, one search party result for every trip
+ashore, and a failure message if no treasure is found.
 
 ```bash
 Treasure hunt started at: 4,4
@@ -368,9 +368,10 @@ Treasure hunt failed
 
 ### Option: Stats
 
-If the stats option is requested at the command line (`--stats` or `-s`), output
+If the stats option is specified at the command line (`--stats` or `-s`), output
 a statistical summary after the search has completed. This will appear after
-verbose messages (if both are specified), and before the "Search Results."
+verbose messages (if both are specified), and before the "Treasure Hunt
+Results."
 
 ```bash
 --- STATS ---
@@ -383,9 +384,10 @@ Treasure Location: 0,0
 --- STATS ---
 ```
 
-The total lines show the number of tiles searched. If a location is added to a
-container but never removed, it is *NOT* counted in its respective total. A line
-displaying the number of search parties that went ashore must be included. If a
+The total lines show the number of tiles that were investigated, or were the
+current location at some point in time. If a location is added to a container
+but it is never removed, it is *NOT* counted in its respective total. A line
+displaying the number of times a search party went ashore must be included. If a
 path to the treasure is found, include a line with the length of the path, and
 another line with the location of the treasure. Path length doesn't count the
 starting and ending locations, but rather the the steps between them. A hunt
@@ -422,12 +424,13 @@ Went Ashore: 2
 
 ### Option: Show Path as Map or List
 
-If the show path option is requested at the command line (`--show-path` or
-`-w`), output the path discovered from the start location to the treasure. The
-show path option requires an argument which will be a single upper-case
-character, an `M` to display a treasure map or an `L` to display the locations
-that define the path. This will appear after verbose messages and stats (if
-either or both are specified), and before the "Search Results."
+If the show path option is specified at the command line (`--show-path` or
+`-p`), output the path discovered from the start location to the treasure. The
+show path option requires an argument which will display a treasure map when the
+argument provded is an `M`, or display the locations that define the path when
+the argument provided is an `L`. The path will appear after verbose messages and
+stats (if either or both are specified), and before the "Treasure Hunt Results."
+If any other argument value is provided, the program should exit with error.
 
 #### Treasure Map
 
@@ -445,18 +448,56 @@ o|...
 ```
 
 #### Coordinate List
-For more on the path length versus the number of locations, and the off-by-one
-error that can result from this type of problem, read
+
+A "coordinate list" displays the path as a collection of row/column coordinates
+that trace the path from start location to treasure. The list should be divided
+into two sections, with sailing locations listed first, and the locations on the
+treasure island covered by the search party. Include labels to show whether the
+locations are discovered while sailing or searching.
+
+It is implied that the start location will be the first coordinate and the
+treasure will be at the last coordinate.
+
+```
+Sail:
+4,4
+4,3
+4,2
+4,1
+3,1
+2,1
+Search:
+1,1
+0,1
+0,0
+```
+
+The number of coordinates should be one more than the length of the path. For
+more on the path length versus the number of locations, and the off-by-one error
+that can result from this type of problem, read
 [off-by-one](https://en.wikipedia.org/wiki/Off-by-one_error#Fencepost_error).
 
 ## Error Handling and Assumptions
-, if any other
-characters are read in, the file should be considered unreadable and a prompt
-termination with a non-zero exit code should result.
 
-Discussion
+All input files will be well formed. This means that any test cases given will
+describe a map exactly as described above, with no extraneous or invalid
+characters, no invalid coordinates, and no formatting that conflicts with the
+descriptions in "Input File" above.
 
-### Possible Errors
+Working with users can be a challenge as they are prone to error, oversight, and
+even bad judgement. Since it is assumed that input files will not contain
+errors, it will only be important to handle errors at the command line.
+
+1. If Captain or First Mate option is specified, the argument provided must be
+   either "queue" or "stack"
+2. Each of Captain or First Mate options can only be specified once per run
+3. If Search Order option is specified, the argument provided must be four
+   characters long
+4. If Search Order option is specified, the argument provided must contain one
+   and only one of each of “nesw” (in any order)
+5. If Show Path option is specified, the argument provided must be ‘M’ or ‘L’
+6. All short or long options not in the spec should result in program
+   termination with a non-zero exit code
 
 ## Submission to the Autograder
 
@@ -474,8 +515,188 @@ Discussion
 
 --------
 
-## Appendix A: An Example
+## Appendix A: Another Example
+
+### The Map
+
+```
+# Appendix A Map: 8x8 with 4 islands
+M
+8
+...o$oo.
+o..oooo.
+...ooo..
+........
+....oo..
+....o...
+...oo...
+..o...@.
+```
+
+```
+# Appendix A Map: 8x8 with 4 islands
+L
+8
+0 3 o
+0 4 $
+0 5 o
+0 6 o
+1 3 o
+1 4 o
+1 5 o
+1 6 o
+2 3 o
+2 4 o
+2 5 o
+
+1 0 o
+
+4 4 o
+4 5 o
+5 4 o
+6 3 o
+6 4 o
+
+7 2 o
+
+7 6 @
+```
+
+### The Hunts
+
+Hunt 1: with verbose, stats, and treasure map
+
+```
+$ ./hunt -svp M appA.map.txt
+Treasure hunt started at: 7,6
+Went ashore at: 6,4
+Searching island... party returned with no treasure.
+Went ashore at: 7,2
+Searching island... party returned with no treasure.
+Went ashore at: 2,5
+Searching island... party found treasure at 0,4.
+--- STATS ---
+Starting Location: 7,6
+Total Sail: 13
+Total Land: 11
+Went Ashore: 3
+Path Length: 13
+Treasure Location: 0,4
+--- STATS ---
+...oX+o.
+o..oo|o.
+...oo|..
+.....+-+
+....oo.|
+....o+-+
+...oo|..
+..o..+@.
+Treasure found at 0,4 with path length 13.
+```
+
+Hunt 2: with Captain using a queue, verbose, stats, and treasure map
+
+```
+$ ./hunt -svp M -c queue appA.map.txt
+Treasure hunt started at: 7,6
+Went ashore at: 6,4
+Searching island... party returned with no treasure.
+Went ashore at: 7,2
+Searching island... party returned with no treasure.
+Went ashore at: 1,6
+Searching island... party found treasure at 0,4.
+--- STATS ---
+Starting Location: 7,6
+Total Sail: 15
+Total Land: 11
+Went Ashore: 3
+Path Length: 9
+Treasure Location: 0,4
+--- STATS ---
+...oX-+.
+o..ooo|.
+...ooo|.
+......|.
+....oo|.
+....o.|.
+...oo.|.
+..o...@.
+Treasure found at 0,4 with path length 9.
+```
+
+Hunt 3: with First Mate using a stack, verbose, stats, and treasure map
+
+```
+$ ./hunt -svp M appA.map.txt -f stack
+Treasure hunt started at: 7,6
+Went ashore at: 6,4
+Searching island... party returned with no treasure.
+Went ashore at: 7,2
+Searching island... party returned with no treasure.
+Went ashore at: 2,5
+Searching island... party found treasure at 0,4.
+--- STATS ---
+Starting Location: 7,6
+Total Sail: 13
+Total Land: 12
+Went Ashore: 3
+Path Length: 15
+Treasure Location: 0,4
+--- STATS ---
+...+Xoo.
+o..|ooo.
+...+-+..
+.....+-+
+....oo.|
+....o+-+
+...oo|..
+..o..+@.
+Treasure found at 0,4 with path length 15.
+```
+
+Hunt 4: with search order "swen" and coordinate list
+
+```
+$ ./hunt -p L appA.lst.txt -o swen
+Sail:
+7,6
+6,6
+5,6
+4,6
+3,6
+2,6
+Search:
+2,5
+2,4
+1,4
+0,4
+Treasure found at 0,4 with path length 9.
+```
 
 ## Appendix B: Tips
 
 ## Appendix C: Test Case Legend
+
+Each test case will be labeled like
+
+```
+<map_size><map_index><output_option(s)>
+```
+
+* map_size is one of 'S', 'M', or 'L', to give a general idea of the time
+  and memory required during the hunt
+* map_index is a two-digit, zero-based number that denotes either different
+  input files, different command line options, or both
+* output_options is a collection of zero or more characters ('v', 's', and 'p')
+  representing CLI options above, where the order provided in the test case
+  label need not match the order in the command line, and the options provided
+  at the command line may be in short or long format
+
+### Examples
+
+* S00vspL: A small test that requires verbose output, stats, and a path
+  displayed in coordinate list format, in addtion to "Treasure Hunt Results"
+* M04v: A medium test that requires verbose output in addition to results
+* M09pM: A medium test that requires the path in treasure map format, in
+  addition to results
+* L00: A large test that requires only results
