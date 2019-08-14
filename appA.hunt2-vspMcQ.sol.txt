@@ -1,0 +1,24 @@
+Treasure hunt started at: 7,6
+Went ashore at: 6,4
+Searching island... party returned with no treasure.
+Went ashore at: 7,2
+Searching island... party returned with no treasure.
+Went ashore at: 1,6
+Searching island... party found treasure at 0,4.
+--- STATS ---
+Starting Location: 7,6
+Total Sail: 15
+Total Land: 11
+Went Ashore: 3
+Path Length: 9
+Treasure Location: 0,4
+--- STATS ---
+...oX-+.
+o..ooo|.
+...ooo|.
+......|.
+....oo|.
+....o.|.
+...oo.|.
+..o...@.
+Treasure found at 0,4 with path length 9.
