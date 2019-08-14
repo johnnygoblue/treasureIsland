@@ -304,21 +304,23 @@ L
 
 ## The Command Line Interface (CLI)
 
-Discussion
+```
+usage: hunt [options] [inputfile]
+```
 
 ### Supported Options
 
-* --help, -h: Print a useful help message and exit
+* --help, -h: Print a useful help message and exit, ignores all other options
 * --captain <"queue"|"stack">, -c <"queue"|"stack">: The route-finding container
-used while sailing in the water (default: stack)
+  used while sailing in the water (default: stack)
 * --first-mate <"queue"|"stack">, -f <"queue"|"stack">: The route-finding
-container used while searching on land (default: queue)
+  container used while searching on land (default: queue)
 * --search-order <order>, -o <order>: The order of exploration of adjacent
-tiles around the current location (default: nesw)
+  tiles around the current location (default: nesw)
 * --verbose, -v: Print verbose output while searching
 * --stats, -s: Display statistics after the search is complete
 * --show-path <M|L>, -p <M|L>: Display a treasure map or the list of locations
-that describe the path
+  that describe the path
 
 ## Output Format
 
@@ -411,7 +413,8 @@ M
 .@.
 ```
 
-If no path to the treasure is found, omit the last two lines of stats.
+**If no path to the treasure is found, omit the last two lines (path length and
+treasure location) of stats output.**
 
 ```bash
 --- STATS ---
@@ -425,12 +428,13 @@ Went Ashore: 2
 ### Option: Show Path as Map or List
 
 If the show path option is specified at the command line (`--show-path` or
-`-p`), output the path discovered from the start location to the treasure. The
-show path option requires an argument which will display a treasure map when the
-argument provded is an `M`, or display the locations that define the path when
-the argument provided is an `L`. The path will appear after verbose messages and
-stats (if either or both are specified), and before the "Treasure Hunt Results."
-If any other argument value is provided, the program should exit with error.
+`-p`), output the path discovered from the start location to the treasure. **If
+no path to the treasure is found, nothing should be printed.** The show path
+option requires an argument which will display a treasure map when `M` is
+provded, or display the locations that define the path when an `L` is provided.
+If any other argument value is provided, the program should exit with error. The
+path will appear after verbose messages and stats (if either or both are
+specified), and before the "Treasure Hunt Results." 
 
 #### Treasure Map
 
@@ -490,26 +494,162 @@ errors, it will only be important to handle errors at the command line.
 
 1. If Captain or First Mate option is specified, the argument provided must be
    either "queue" or "stack"
-2. Each of Captain or First Mate options can only be specified once per run
-3. If Search Order option is specified, the argument provided must be four
+2. If Search Order option is specified, the argument provided must be four
    characters long
-4. If Search Order option is specified, the argument provided must contain one
+3. If Search Order option is specified, the argument provided must contain one
    and only one of each of “nesw” (in any order)
-5. If Show Path option is specified, the argument provided must be ‘M’ or ‘L’
-6. All short or long options not in the spec should result in program
+4. If Show Path option is specified, the argument provided must be ‘M’ or ‘L’
+5. All short or long options not in the spec should result in program
    termination with a non-zero exit code
 
 ## Submission to the Autograder
 
+Keep all source files, header files, test files, and a Makefile in a directory
+dedicated to this project. This will be the "submit directory". The autograder
+will manage each submission by using `make` and the included Makefile.
+
+### Makefile requirements
+
+The following targets and behaviors are required of the Makefile by the
+autograder.
+
+* `make -R -r`: default target that builds the project without errors and
+  generates and executable file named `hunt` as a "release build"; options -R
+  and -r disable automatic build rules, which do not work on the autograder;
+  additionally, the release build should specify -O3 for optimization and should
+  not specify -g to include debug symbols
+* `make clean`: delete all .o files and executable(s)
+* `make debug`: optional; builds the project without errors and specifies the -g
+  option, generating an executable that includes debug symbols (with no change
+  in program output) named `hunt_debug`; this may be used by the autograder to
+  help diagnose problems
+
+If the Makefile provided with the project specification is used, the following
+targets (and more) will be included as well as the three listed above.
+
+* `make help`: displays a help and usage message for targets in the Makefile
+* `make all`: builds both `hunt` and `hunt_debug` as specified above
+* `make fullsubmit`: builds a "tarball" named `fullsubmit.tar.gz` that contains
+  all source and header files, test files, and the Makefile; this file is to be
+  submitted to the autograder for any completely graded submission
+* `make partialsubmit`: builds a "tarball" named `partialsubmit.tar.gz` that
+  contains only source and header files, and the Makefile; test files are not
+  included, which will speed up the autograder by not checking for bugs; this
+  should be used when testing the simulation only
+
+The Makefile must compile all code using version 7.1.0 of the g++ compiler. This
+is available on the CAEN Linux systems (accessible via login.engin.umich.edu).
+Even if everything seems to work on another operating system or with different
+versions of GCC, the course staff will not support anything other than GCC 7.1.0
+running on CAEN Linux. Note: In order to compile with g++ version 7.1.0 on CAEN
+and the autograder, you must put the following at the top of your Makefile:
+
+```bash
+PATH := /usr/um/gcc-7.1.0/bin:$(PATH)
+LD_LIBRARY_PATH := /usr/um/gcc-7.1.0/lib64
+LD_RUN_PATH := /usr/um/gcc-7.1.0/lib64
+```
+
+### Source and Header Files
+
+By default, the Makefile recognizes source and header files with these
+extensions: .h .hpp .cpp. As a general rule, header files should never be
+compiled directly and source files should never be `#include`'d. Each header and
+source file include must have the "Project Identifier" included in a comment.
+This can be done with this line:
+
+`// PROJECT IDENTIFIER: 40FB54C86566B9DDEAB902CC80E8CE85C1C62AAD`
+
+The autograder will not compile any submission that does not contain the
+project identifier in every source and header file. If additional file type are
+preferred (eg.: .hxx, .cxx, cc), those must be included by manually editing the
+Makefile.
+
+### Test Files
+
+Test files submitted to find bugs are named test-n.txt, where 1 <= n <= 15, and
+no other project file names begin with test. Up to 15 tests may be submitted.
+Test files do not require a project identifier.
+
+### Tarball Requirements
+
+A "tarball" is a compressed archive file with either a .tar.gz or .tgz
+extension. The provided Makefile creates tarballs named `fullsubmit.tar.gz` or
+`partialsubmit.tar.gz`, but the autograder will accept any file of this format.
+
+* Include only the source and header files that are required to build the `hunt`
+  executable
+* Include up to 15 properly named test files
+* Include a Makefile
+* The total size of all files included does not exceed 2MB
+* No unnecessary C++ files, text files, or other junk from the submit directory
+* All files are submitted in a single "flat" directory, with no subfolders
+
+This can be done manually at the command line with the following command inside
+the submit directory:
+
+```bash
+$ tar cvzf submit.tar.gz *.cpp *.h *.hpp Makefile test*.txt
+```
+ 
+### How to Submit
+
+Submit a tarball directly to either of the two autograders at:
+[ag1](https://g281-1.eecs.umich.edu) or [ag2](https://g281-2.eecs.umich.edu).
+Load balancing is done at the time of submission: if there are 10 submissions in
+the queue on autograder 1 and none for autograder 2, submit to autograder 2. Do
+not try to submit to both autograders at once! It is safe to ignore and override
+any warnings about an invalid security certificate.
+
+The autograders are identical and your daily submission limit will be shared
+(and kept track of) between them. The autograders will accept three Project 1
+submissions per day, per student. For this purpose, days begin and end at
+midnight (Ann Arbor local time). The highest graded submission will be used
+during "final grading" to determine the score of the project.
+
+When the autograders are turned on and accepting submissions, there will be
+announcements made in lecture, in lab, and on Piazza. There is *NEVER* any
+reason to contact the course staff to ask when the autograder will be up. It is
+always a top priority and either up and running or being worked on.
+
 ## Grading
+
+Please be sure to read all messages shown at the top of the autograder results!
+The messages before the scoring of individual test cases are equally as
+important as the scores below, and will often explain outstanding issues the
+autograder finds (such as losing points for having a bad Makefile).
+
+* 80 points: Grades will be primarily based on the correctness of algorithm
+             implementation. For full points, each submission must have correct
+             and working stack and queue algorithms, support both types of input
+             and output modes, and properly handle all command line options.
+             Additionally: Part of the grade will be derived from the runtime
+             performance of the submission. Fast, correct implementations will
+             receive all possible performance points. Slower implementations may
+             receive only a portion of the performance points. The autograders
+             keep track of the fastest run times (“click on View scoreboard”
+             from the autograder project page). This can be used to compare the
+             efficiency of a submission to those of other students and
+             instructors. **These comparisons are not included in grades given.**
+* 10 points: Test file coverage (effectiveness at exposing buggy solutions).
+* 10 points: Memory leak check with valgrind
+
+All grading will be done by the autograder.
 
 ### Simulation
 
-### Memory Leaks
+### Memory Leak Check
 
 ### Testing
 
 ## Hints and Advice
+
+It is strongly recommend that some form of version control (eg.: git, SVN, etc.)
+is used, that files are committed at least as often as submissions are made to
+the autograder. If an online version control system is used, make sure that all
+projects and files are PRIVATE; many sites make them public by default! Any code
+found by another student and used, even without permission, could trigger Honor
+Code proceedings for both parties.
 
 ## Libraries and Restrictions
 
@@ -567,7 +707,7 @@ L
 Hunt 1: with verbose, stats, and treasure map
 
 ```
-$ ./hunt -svp M appA.map.txt
+$ ./hunt -svp M appA.map.txt | tee appA.hunt1-vspM.sol.txt
 Treasure hunt started at: 7,6
 Went ashore at: 6,4
 Searching island... party returned with no treasure.
@@ -597,7 +737,7 @@ Treasure found at 0,4 with path length 13.
 Hunt 2: with Captain using a queue, verbose, stats, and treasure map
 
 ```
-$ ./hunt -svp M -c queue appA.map.txt
+$ ./hunt -p M --stats -v -c queue appA.map.txt | tee appA.hunt2-vspMcQ.sol.txt
 Treasure hunt started at: 7,6
 Went ashore at: 6,4
 Searching island... party returned with no treasure.
@@ -627,7 +767,7 @@ Treasure found at 0,4 with path length 9.
 Hunt 3: with First Mate using a stack, verbose, stats, and treasure map
 
 ```
-$ ./hunt -svp M appA.map.txt -f stack
+$ ./hunt -v -sp M appA.map.txt --first-mate stack | tee appA.hunt3-vspMfS.sol.txt
 Treasure hunt started at: 7,6
 Went ashore at: 6,4
 Searching island... party returned with no treasure.
@@ -657,7 +797,7 @@ Treasure found at 0,4 with path length 15.
 Hunt 4: with search order "swen" and coordinate list
 
 ```
-$ ./hunt -p L appA.lst.txt -o swen
+$ ./hunt -o swen -show-path L appA.lst.txt | tee appA.hunt4-pLoSWEN.sol.txt
 Sail:
 7,6
 6,6
@@ -675,12 +815,21 @@ Treasure found at 0,4 with path length 9.
 
 ## Appendix B: Tips
 
+If your code "works" when you don't compile with -O3 and breaks when you do, it
+means you have a bug in your code!
+
 ## Appendix C: Test Case Legend
 
 Each test case will be labeled like
 
 ```
 <map_size><map_index><output_option(s)>
+```
+
+or
+
+```
+<"spec1"|"appA"><output_option(s)>
 ```
 
 * map_size is one of 'S', 'M', or 'L', to give a general idea of the time
@@ -691,12 +840,13 @@ Each test case will be labeled like
   representing CLI options above, where the order provided in the test case
   label need not match the order in the command line, and the options provided
   at the command line may be in short or long format
+* spec1 & appA are examples given in this document
 
 ### Examples
 
-* S00vspL: A small test that requires verbose output, stats, and a path
+* S00-vspL: A small test that requires verbose output, stats, and a path
   displayed in coordinate list format, in addtion to "Treasure Hunt Results"
-* M04v: A medium test that requires verbose output in addition to results
-* M09pM: A medium test that requires the path in treasure map format, in
+* M04-v: A medium test that requires verbose output in addition to results
+* M09-pM: A medium test that requires the path in treasure map format, in
   addition to results
 * L00: A large test that requires only results
