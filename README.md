@@ -542,7 +542,7 @@ is available on the CAEN Linux systems (accessible via login.engin.umich.edu).
 Even if everything seems to work on another operating system or with different
 versions of GCC, the course staff will not support anything other than GCC 7.1.0
 running on CAEN Linux. Note: In order to compile with g++ version 7.1.0 on CAEN
-and the autograder, you must put the following at the top of your Makefile:
+and the autograder, include the following at the top of the Makefile:
 
 ```bash
 PATH := /usr/um/gcc-7.1.0/bin:$(PATH)
@@ -601,7 +601,7 @@ the queue on autograder 1 and none for autograder 2, submit to autograder 2. Do
 not try to submit to both autograders at once! It is safe to ignore and override
 any warnings about an invalid security certificate.
 
-The autograders are identical and your daily submission limit will be shared
+The autograders are identical and the daily submission limit will be shared
 (and kept track of) between them. The autograders will accept three Project 1
 submissions per day, per student. For this purpose, days begin and end at
 midnight (Ann Arbor local time). The highest graded submission will be used
@@ -636,22 +636,49 @@ autograder finds (such as losing points for having a bad Makefile).
 
 All grading will be done by the autograder.
 
-### Simulation
-
 ### Memory Leak Check
 
 ### Testing
 
 ## Hints and Advice
 
-It is strongly recommend that some form of version control (eg.: git, SVN, etc.)
-is used, that files are committed at least as often as submissions are made to
-the autograder. If an online version control system is used, make sure that all
-projects and files are PRIVATE; many sites make them public by default! Any code
-found by another student and used, even without permission, could trigger Honor
-Code proceedings for both parties.
+* Design data structures and work through algorithms on paper first. Draw
+  pictures and make bulleted lists. Consider different possibilities before
+  beginning to code. If there are problems at the design stage, come to office
+  hours. After some design work is done and a general understanding of the
+  assignment and its scope is achieved, re-read this document.  Consult it often
+  during development to ensure that all code is in compliance with the
+  specification.
+* Always think through data structures and algorithms before coding. It is
+  vital that efficient algorithms and implementations are used in this project
+  and in this course, and coding before thinking often results in inefficient
+  algorithms and/or implementations.
+* Before trying to use linked lists, be sure to review the lecture slides or
+  measure their performance against `vector<>` first (theoretical complexities
+  and actual runtime can tell different stories).
+* Only print the specified output to standard output.
+* Any diagnostic information may be printed to standard error (`cerr`) without
+  penaltly. However, make sure it does not scale with the size of input, so that
+  time and memory limits are not exceeded.
+* If the program does find a route, be sure to have `main()` return 0. If the
+  input is valid but no route exists, also have main() return 0.
+* It is strongly recommended that some form of version control (eg.: git, SVN,
+  etc.) is used, and that files are committed at least as often as submissions
+  are made to the autograder. If an online version control system is used, make
+  sure that all projects and files are PRIVATE; many sites make them public by
+  default! Any code found by another student and used, even without permission,
+  could trigger Honor Code proceedings for both parties.
+* This is not an easy project. Start it immediately!
+
+Have fun coding!
 
 ## Libraries and Restrictions
+
+Unless otherwise stated, you are allowed and _encouraged_ to use all parts of
+the C++ STL and the other standard header files for this project.  You are
+**NOT** allowed to use other libraries (eg: boost, pthread, etc).  You are
+**NOT** allowed to use the C++11 regular expressions library or the
+thread/atomics libraries (they spoils runtime measurements).
 
 --------
 
