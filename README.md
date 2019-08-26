@@ -4,11 +4,11 @@
 
 It's a Pirate's Life for me, for me, it's a Pirate's Life for me!
 
-It's time to set sail in search for buried treasure. The only problem? There's
-no map! But a wily captain and hardy first mate have teamed up for a treasure
-hunt. They've conscripted you to write a program to lead their search for riches
-in and around a chain of islands. The Captain will pilot the ship over the
-water, and the First Mate will lead the search party on land.
+Nothing beats a hunt for buried treasure. The only problem? There's no map! But
+a wily captain and hardy first mate have teamed up for a treasure hunt. They've 
+conscripted you to write a program to lead their hunt for riches in and around
+a chain of islands. The Captain will sail the ship over the water, and the
+First Mate will lead the search party on land.
 
 ### A Chain of Islands
 
@@ -17,7 +17,7 @@ as a 2D-grid size N x N, with N >= 2. The text file will either be a map or a
 list of grid coordinates and terrains. The following ascii characters will be
 used to describe terrain.
 
-* .: Open water
+* .: Water
 * o: Land
 * #: Impassable (land or water)
 * @: Starting location (always water)
@@ -69,46 +69,49 @@ and you will most surely be keelhauled.
 To satisfy the moods of your "employers", you develop two routing schemes, one
 that uses a stack and one that uses a queue to store newly discovered locations.
 The Captain and First Mate can choose from either of these container types.
-Stack-based routing tending to continue along a recent heading, eventually
-covering the search area, while queue-based routing covers the search area in
-ever-increasing radii.
+Stack-based routing tends to continue investigation along a recent heading,
+eventually returning to locations that were passed in order to cover the hunt
+area, while queue-based routing covers the hunt area in ever-increasing radii.
 
-### The Search Order
+### The Hunt Order
 
-When discovering new locations use the Search Order to determine the order of
-investigation. By default the search order is North, East, South, West. Any
-expedition can choose another search order at the command line.
+When discovering new locations use the Hunt Order to determine the order of
+investigation. By default the hunt order is North, East, South, West. Any
+expedition can choose another hunt order at the command line.
 
 ### The Hunt Algorithm
 
 The treasure hunt will be one large hunt (over water) with zero or more smaller
 hunts (over land). The Captain always begins the hunt from the start location
-(`@`), which is a water location. The First Mate begins a search party hunt from
-a land location that was discovered by the Captain. Use the following hunt
-algorithm with the container (stack or queue) and location that suits the hunter
-in charge.
+(`@`), which is a water location. The First Mate begins a search party subhunt
+from a land location that was discovered by the Captain. Use the following hunt
+algorithm with the container (stack or queue) and initial location that suits
+the hunter in charge.
 
-1. Add the starting location to the container. 
-  - For the Captain, this is '@', a water location, on the map
-  - For the First Mate, this is wherever the search party was put ashore
-2. If the container is empty, part of the hunt has ended. If not, set the
-"current location" to the "next" available location in the container (front for
-queue, back for stack) and remove it from the container. 
-  - For the Captain, an empty container means the large hunt has ended in
+1. Add the initial location to the container. 
+  - For the Captain (sail container), this is the starting location, a water
+    location, `@` on the map
+  - For the First Mate (search container), this is wherever the search party
+    was put ashore
+2. If the container is empty, the hunt or subhunt has ended. If not, set the
+"current location" to the "next" available location in the container (where
+next is front for queue, back for stack) and remove it from the container. 
+  - For the Captain, an empty container means the entire hunt has ended in
     failure; jump to Step #6
-  - For the First Mate, an empty container means a small hunt has ended and the
-    search party has failed and must return to the ship; jump to Step #3 in the
-    Captain's hunt
+  - For the First Mate, an empty container means a subhunt has ended and the
+    search party was put ashore at a location that had no path to the treasure
+    and must return to the ship; return to Step #3 where the Captain's hunt
+    left off
 3. From the current location, add any adjacent locations that are not impassable
-and have not already been discovered. Discover new locations in the order of the
-Search Pattern.
-  - The Captain will only add water locations. If the Captain discovers land,
-    the First Mate will be immediately put ashore, before examining other
-    adjacent locations, to start a search party at that location using a
-    separate container; jump to Step #1. 
-  - The First Mate will only add land locations. If the First Mate encounters
-    water it will be ignored regardless of whether it has already been
-    discovered or not.
+and have not already been discovered. Discover new locations as dictated by the
+Hunt Order.
+  - The Captain will only add water locations to the sail container. If the
+    Captain discovers land, the First Mate will be immediately put ashore,
+    before examining other adjacent locations, to start a search party at that
+    location using a separate container; jump to Step #1 
+  - The First Mate will only add land locations to the search container. If the
+    First Mate encounters water it will be ignored regardless of whether it has
+    already been discovered or not
 4. If any location added to a container is the treasure ('$'), end the hunt
 right away, because the existence of a path has been found; jump to Step #6
 5. Repeat from Step #2
@@ -233,9 +236,9 @@ pseudocode shows the technique:
 
 ## Input File
 
-The input file representing the grid to be searched will be provided in one of
-two ways: a 2D ASCII map, or a list of coordinate/terrain triples. Both files
-will have similar front matter:
+The input file representing the grid where the hunt will take place will be
+provided in one of two ways: a 2D ASCII map, or a list of coordinate/terrain
+triples (CTT). Both files will have similar front matter:
 
 1. Zero or more lines of comments, each of which...
   - have an octothorpe (#) in column zero
@@ -245,45 +248,46 @@ will have similar front matter:
   - a single ASCII character
   - either M or L (for map or list files)
   - followed by a newline character
-3. A map size value, which...
-  - is a positive integer, >= 2
-  - represents both the width and the height of the map
-  - is followed by a newline character
+3. A map size value, which is...
+  - a positive integer, >= 2
+  - both the width and the height of the map
+  - followed by a newline character
 
-Any starting location is to be considered a water square.
+**The starting location is always a water square, and the treasure location is
+always a land square.**
 
 ### Map Format
 
-After the front matter, if the first non-comment byte is 'M', the file is in map
-format. There will be N rows of N characters (plus a newline), where N is the
-map size value that is on the line immediately following the filetype specifier.
-Each of the N characters must be from the Terrain Legend above.
+If the first non-comment byte is 'M', the input file is in map format. There
+will be N rows of N characters (plus a newline), where N is the map size value
+that is on the line immediately following the filetype specifier. Each of the N
+characters must be from the Terrain Legend above.
 
 See the Example Map above for a sample of a map format file.
 
 ### List Format
 
-After the front matter, if the first non-comment byte is 'L', the file is in
-list format. Following the map size integer, there will be two or more lines
-(start location and treasure location at least) that are coordinate/terrain
-triples (CTT), and any number of blank lines. A CTT is two non-negative
-integers, row and column, followed by a single character to represent the
-terrain at that location (refer to the Terrain Legend above). These three values
-will be separated by spaces and followed by a newline character. When reading
-list format files, ignore any blank lines that occur.
+If the first non-comment byte is 'L', the input file is in list format.
+Following the map size integer, there will be two or more lines (start location
+and treasure location at least) that are coordinate/terrain triples (CTT), and
+any number of blank lines. A CTT is two non-negative integers (row and column)
+followed by a single character to represent the terrain at that location (refer
+to the Terrain Legend above). These three values will be separated by spaces
+and followed by a newline character. When reading list format files, ignore any
+blank lines that occur.
 
 ```
 CTT: <row> <col> <terrain>
 ```
 
 List format files may specify a subset of all CTT in a map. If fewer than NxN
-CTT are provided, missing locations are assumed to be water (.). No location
-will be specified more once in a list format file, so no more than NxN locations
-can be included. The order of CTT are unspecified.
+CTT are provided, missing locations are assumed to be water (`.`). No location
+will be specified more once in a list format file, so no more than NxN
+locations can be included. The order of CTT is unspecified.
 
 One possible list format file of the example map above follows.
 
-### Example List
+### Example List Input
 
 ```
 # Spec Map #1
@@ -330,7 +334,7 @@ After a treasure hunt, one line is printed describing the success or failure of
 the hunt:
 
 ```bash
-No treasure found after searching 5 locations.
+No treasure found after investigating 5 locations.
 ```
 
 or
@@ -339,14 +343,14 @@ or
 Treasure found at 0,0 with path length 8.
 ```
 
-where the number of searched locations, the treasure location, and the path
-length are all calculated based on a search of the input file given the command
-line options provided.
+The number of investigated locations, the treasure location, and the path
+length are all calculated or found based on a hunt of the input file, given
+the command line options provided.
 
 ### Option: Verbose
 
 If the verbose option is specified at the command line (`--verbose` or `-v`),
-output additional information while the search is happening. Verbose output, if
+output additional information while the hunt is happening. Verbose output, if
 requested, will always appear before the results and will consist of a start
 message, zero or more ashore messages, one search party result for every trip
 ashore, and a failure message if no treasure is found.
@@ -371,18 +375,18 @@ Treasure hunt failed
 ### Option: Stats
 
 If the stats option is specified at the command line (`--stats` or `-s`), output
-a statistical summary after the search has completed. This will appear after
+a statistical summary after the hunt has completed. This will appear after
 verbose messages (if both are specified), and before the "Treasure Hunt
 Results."
 
 ```bash
 --- STATS ---
-Starting Location: 4,4
-Total Sail: 8
-Total Land: 6
-Went Ashore: 2
-Path Length: 8
-Treasure Location: 0,0
+Starting location: 4,4
+Water locations investigated: 8
+Land locations investigated: 6
+Went ashore: 2
+Path length: 8
+Treasure location: 0,0
 --- STATS ---
 ```
 
@@ -413,15 +417,15 @@ M
 .@.
 ```
 
-**If no path to the treasure is found, omit the last two lines (path length and
-treasure location) of stats output.**
+**If no path to the treasure is found, omit the last two lines (Path length and
+Treasure location) of stats output.**
 
 ```bash
 --- STATS ---
-Starting Location: 4,4
-Total Sail: 8
-Total Land: 6
-Went Ashore: 2
+Starting location: 4,4
+Water locations investigated: 8
+Land locations investigated: 6
+Went ashore: 2
 --- STATS ---
 ```
 
@@ -454,13 +458,13 @@ o|...
 #### Coordinate List
 
 A "coordinate list" displays the path as a collection of row/column coordinates
-that trace the path from start location to treasure. The list should be divided
-into two sections, with sailing locations listed first, and the locations on the
-treasure island covered by the search party. Include labels to show whether the
-locations are discovered while sailing or searching.
+that trace from the start location to the treasure location. The list should be
+divided into two sections, with sailing locations listed first, followed by the
+search locations of the final search party. Include labels at the beginning of
+each section.
 
-It is implied that the start location will be the first coordinate and the
-treasure will be at the last coordinate.
+The start location will be the first coordinate and the treasure location will
+be the last coordinate.
 
 ```
 Sail:
@@ -477,14 +481,14 @@ Search:
 ```
 
 The number of coordinates should be one more than the length of the path. For
-more on the path length versus the number of locations, and the off-by-one error
-that can result from this type of problem, read
+more on the path length versus the number of locations, and the off-by-one
+error that can result from this type of problem, read
 [off-by-one](https://en.wikipedia.org/wiki/Off-by-one_error#Fencepost_error).
 
 ## Error Handling and Assumptions
 
 All input files will be well formed. This means that any test cases given will
-describe a map exactly as described above, with no extraneous or invalid
+represent a map exactly as described above, with no extraneous or invalid
 characters, no invalid coordinates, and no formatting that conflicts with the
 descriptions in "Input File" above.
 
@@ -494,12 +498,13 @@ errors, it will only be important to handle errors at the command line.
 
 1. If Captain or First Mate option is specified, the argument provided must be
    either "queue" or "stack"
-2. If Search Order option is specified, the argument provided must be four
+2. If Hunt Order option is specified, the argument provided must be four
    characters long
-3. If Search Order option is specified, the argument provided must contain one
+3. If Hunt Order option is specified, the argument provided must contain one
    and only one of each of “nesw” (in any order)
-4. If Show Path option is specified, the argument provided must be ‘M’ or ‘L’
-5. All short or long options not in the spec should result in program
+4. If Show Path option is specified, the argument provided must be 'M' or 'L'
+5. The Show Path option can only be specified once
+6. All short or long options not in the spec should result in program
    termination with a non-zero exit code
 
 ## Submission to the Autograder
@@ -514,7 +519,7 @@ The following targets and behaviors are required of the Makefile by the
 autograder.
 
 * `make -R -r`: default target that builds the project without errors and
-  generates and executable file named `hunt` as a "release build"; options -R
+  generates an executable file named `hunt` as a "release build"; options -R
   and -r disable automatic build rules, which do not work on the autograder;
   additionally, the release build should specify -O3 for optimization and should
   not specify -g to include debug symbols
@@ -554,16 +559,16 @@ LD_RUN_PATH := /usr/um/gcc-7.1.0/lib64
 
 By default, the Makefile recognizes source and header files with these
 extensions: .h .hpp .cpp. As a general rule, header files should never be
-compiled directly and source files should never be `#include`'d. Each header and
-source file include must have the "Project Identifier" included in a comment.
-This can be done with this line:
+compiled directly and source files should never be `#include`'d. Each header
+and source file include must have the "Project Identifier" included in a
+comment. This can be done by adding this line:
 
 `// PROJECT IDENTIFIER: 40FB54C86566B9DDEAB902CC80E8CE85C1C62AAD`
 
 The autograder will not compile any submission that does not contain the
-project identifier in every source and header file. If additional file type are
-preferred (eg.: .hxx, .cxx, cc), those must be included by manually editing the
-Makefile.
+project identifier in every source and header file. If additional file types
+are preferred (eg.: .hxx, .cxx, cc), those must be included by manually editing
+the Makefile.
 
 ### Test Files
 
@@ -577,11 +582,11 @@ A "tarball" is a compressed archive file with either a .tar.gz or .tgz
 extension. The provided Makefile creates tarballs named `fullsubmit.tar.gz` or
 `partialsubmit.tar.gz`, but the autograder will accept any file of this format.
 
-* Include only the source and header files that are required to build the `hunt`
-  executable
+* Include only the source and header files that are required to build the
+  `hunt` executable
 * Include up to 15 properly named test files
 * Include a Makefile
-* The total size of all files included does not exceed 2MB
+* The total size of all files included cannot exceed 2MB
 * No unnecessary C++ files, text files, or other junk from the submit directory
 * All files are submitted in a single "flat" directory, with no subfolders
 
@@ -743,12 +748,12 @@ Searching island... party returned with no treasure.
 Went ashore at: 2,5
 Searching island... party found treasure at 0,4.
 --- STATS ---
-Starting Location: 7,6
-Total Sail: 13
-Total Land: 11
-Went Ashore: 3
-Path Length: 13
-Treasure Location: 0,4
+Starting location: 7,6
+Water locations investigated: 13
+Land locations investigated: 11
+Went ashore: 3
+Path length: 13
+Treasure location: 0,4
 --- STATS ---
 ...oX+o.
 o..oo|o.
@@ -773,12 +778,12 @@ Searching island... party returned with no treasure.
 Went ashore at: 1,6
 Searching island... party found treasure at 0,4.
 --- STATS ---
-Starting Location: 7,6
-Total Sail: 15
-Total Land: 11
-Went Ashore: 3
-Path Length: 9
-Treasure Location: 0,4
+Starting location: 7,6
+Water locations investigated: 15
+Land locations investigated: 11
+Went ashore: 3
+Path length: 9
+Treasure location: 0,4
 --- STATS ---
 ...oX-+.
 o..ooo|.
@@ -803,12 +808,12 @@ Searching island... party returned with no treasure.
 Went ashore at: 2,5
 Searching island... party found treasure at 0,4.
 --- STATS ---
-Starting Location: 7,6
-Total Sail: 13
-Total Land: 12
-Went Ashore: 3
-Path Length: 15
-Treasure Location: 0,4
+Starting location: 7,6
+Water locations investigated: 13
+Land locations investigated: 12
+Went ashore: 3
+Path length: 15
+Treasure location: 0,4
 --- STATS ---
 ...+Xoo.
 o..|ooo.

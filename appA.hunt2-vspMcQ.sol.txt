@@ -6,12 +6,12 @@ Searching island... party returned with no treasure.
 Went ashore at: 1,6
 Searching island... party found treasure at 0,4.
 --- STATS ---
-Starting Location: 7,6
-Total Sail: 15
-Total Land: 11
-Went Ashore: 3
-Path Length: 9
-Treasure Location: 0,4
+Starting location: 7,6
+Water locations investigated: 15
+Land locations investigated: 11
+Went ashore: 3
+Path length: 9
+Treasure location: 0,4
 --- STATS ---
 ...oX-+.
 o..ooo|.
