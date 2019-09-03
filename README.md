@@ -36,7 +36,7 @@ hunt must be displayed, or you will be forced to walk the plank!
 # Two small islands with treasure in the NW corner and start in the SE corner.
 M
 5
-$o...
+o$...
 oo...
 #..o.
 ..oo.
@@ -210,19 +210,26 @@ pseudocode shows the technique:
 #include <iostream>
 #include <string>
 
-
 ...
     ifstream infile;  // Used to read from a file if a filename is given
     string filename;  // Use getopt_long and argc + argv to get this value if it
                       // is specified at the command line, it's otherwise empty
+
+    // getopt here!
+
+    // After exiting the while-loop with getopt_long(), if optind != argc,
+    // the command line contains a filename
+    if (optind != argc) {
+      filename = argv[argc];
+    }  // if
 
     if (!filename.empty()) {  // The filename was specified at the command line
         infile.open(filename);
         if (!infile.is_open()) {  // Safety check for opening the file
             cerr << "Unable to open input file: " << filename << endl;
             exit(1);
-        }
-    }
+        }  // if
+    }  // if
     istream &in = (infile.is_open()) ? infile : cin;  // Polymorphism & conditional
 
     // Do the remainder of input using the stream extraction operator and 'in'
@@ -230,7 +237,12 @@ pseudocode shows the technique:
     // If no file was specified 'in == cin'
     in >> file_type >> map_size;
 
-    infile.close();  // Close file after use, it's good housekeeping
+    // other input from 'in' here...
+
+    if (infile.open) {
+      // Close file after use, it's good housekeeping
+      infile.close();
+    }  // if
 ...
 ```
 
@@ -294,10 +306,10 @@ One possible list format file of the example map above follows.
 # Two small islands with treasure in the NW corner and start in the SE corner.
 L
 5
-0 0 $
+0 1 $
 4 4 @
 2 0 #
-0 1 o
+0 0 o
 1 0 o
 1 1 o
 2 2 .
@@ -319,7 +331,7 @@ usage: hunt [options] [inputfile]
   used while sailing in the water (default: stack)
 * --first-mate <"queue"|"stack">, -f <"queue"|"stack">: The route-finding
   container used while searching on land (default: queue)
-* --search-order <order>, -o <order>: The order of exploration of adjacent
+* --hunt-order <order>, -o <order>: The order of discovery of adjacent
   tiles around the current location (default: nesw)
 * --verbose, -v: Print verbose output while searching
 * --stats, -s: Display statistics after the search is complete
@@ -570,11 +582,54 @@ project identifier in every source and header file. If additional file types
 are preferred (eg.: .hxx, .cxx, cc), those must be included by manually editing
 the Makefile.
 
-### Test Files
+### Buggy Solutions and Test Files
 
-Test files submitted to find bugs are named test-n.txt, where 1 <= n <= 15, and
-no other project file names begin with test. Up to 15 tests may be submitted.
-Test files do not require a project identifier.
+A small portion of the grade is be based on creating test files that can
+expose bugs. In addition to the correct solution, the autograder has several
+buggy implementations of the project. Each buggy implementation is based on the
+instructor solution, but has small bugs (either based on implementation
+mistakes or misreadings of the specification).
+
+The goal is to submit input files that cause the buggy implementations to produce
+different output than the correct implementation. Each submission can include up
+to 15 test files to the autograder (though it is possible to get full credit
+with fewer test files). Each test file must be at most size 10. The instructor
+solution will reject test files that are invalid. If a test file is submitted
+that causes the instructor solution to exit 1, then that file will not be used
+to detect bugs.
+
+Part of the reason to submit these test files is to create tests that can be
+used locally, without using the autograder, to verify submissions. For the first
+test file submitted that produces wrong output (if any), the autograder will
+return both the correct output and the wrong output with its feedback! Please
+use the autograder as the helpful tool it is, and submit test files early and
+often! Don't wait until the last minute to submit these.
+
+Each test file should be a valid input file named `test-n-options.txt` where
+1 <= n <= 15. The "options" portion should specify any command line options
+that should be applied with the given test. Use only lowercase, short options,
+and if an option has an argument, append that all uppercase.
+
+Valid options in the filename are:
+
+c: Set captain sail container to given (eg. `cSTACK` or `cQUEUE`)
+f: Set first mate sail container to given (eg. `fQUEUE` or `fSTACK`)
+o: Set hunt order to given (eg. `oNESW` or `oENWS`)
+v: Show verbose output
+s: Show stats output
+p: Show path in mode given (eg. `pM` or `pL`)
+
+These may be combined with or without hypens between options like
+`test-1-vspLcQUEUE.txt` or `test-2-v-s-pL-cQUEUE.txt`).
+
+The flags specified as part of the test filename should only produce valid
+command lines. Don't include any option more than once or with missing or
+invalid arguments. Any options not specified in the filename will not be
+included and runtime will use the defaults specified above.
+
+There are ten buggy implementations on the autograder, to receive all ten
+points for bugs, nine of them must be found. To receive some points, five bugs
+must be found.
 
 ### Tarball Requirements
 
@@ -682,8 +737,8 @@ Have fun coding!
 Unless otherwise stated, you are allowed and _encouraged_ to use all parts of
 the C++ STL and the other standard header files for this project.  You are
 **NOT** allowed to use other libraries (eg: boost, pthread, etc).  You are
-**NOT** allowed to use the C++11 regular expressions library or the
-thread/atomics libraries (they spoils runtime measurements).
+**NOT** allowed to use the C++17 regular expressions library or the
+thread/atomics libraries (they may spoil runtime measurements).
 
 --------
 
@@ -829,7 +884,7 @@ Treasure found at 0,4 with path length 15.
 Hunt 4: with search order "swen" and coordinate list
 
 ```
-$ ./hunt -o swen -show-path L appA.lst.txt | tee appA.hunt4-pLoSWEN.sol.txt
+$ ./hunt -o swen --show-path L appA.lst.txt | tee appA.hunt4-pLoSWEN.sol.txt
 Sail:
 7,6
 6,6
@@ -855,13 +910,19 @@ means you have a bug in your code!
 Each test case will be labeled like
 
 ```
-<map_size><map_index><output_option(s)>
+<map_size><map_index>-<output_option(s)>
 ```
 
 or
 
 ```
-<"spec1"|"appA"><output_option(s)>
+<'spec'|'appA'>-<output_option(s)>
+```
+
+or
+
+```
+<'INV'|'H'><map_index>
 ```
 
 * map_size is one of 'S', 'M', or 'L', to give a general idea of the time
@@ -872,7 +933,9 @@ or
   representing CLI options above, where the order provided in the test case
   label need not match the order in the command line, and the options provided
   at the command line may be in short or long format
-* spec1 & appA are examples given in this document
+* spec & appA are examples given in this document
+* INV are test cases that provide illegal command line options
+* 'H' are handwritten test cases that pose unique challenges
 
 ### Examples
 
