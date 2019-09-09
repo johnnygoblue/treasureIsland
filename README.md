@@ -46,9 +46,8 @@ oo...
 ## Routing Scheme
 
 The Captain and the First Mate don't always see eye-to-eye, and will sometimes
-favor different methods of exploration. Most days, the Captain will navigate
-"by the seat of their pants", while the First Mate, in charge of discipline on
-the ship is usually more methodical.
+favor different methods of exploration. Each one has a default method for
+searching, and this can be overridden (more on this later).
 
 The Captain will travel from island to island with their own log and future
 plans, moving only over water locations ('.'). As soon as land is discovered
@@ -56,7 +55,7 @@ while sailing, a search party is put ashore before any other discovery is
 attempted. Once put ashore to lead a search party, the First Mate will search
 all available land with a separate log and plans before returning to the ship,
 moving only over land locations ('o'). Any water (inland or open ocean)
-encountered by the search party is completely ignored.  Neither the Captain nor
+encountered by the search party is completely ignored. Neither the Captain nor
 the First Mate will ever accidentally overlook treasure ('$'), and both are
 unable to move over impassable terrain ('#').
 
@@ -85,37 +84,51 @@ The treasure hunt will be one large hunt (over water) with zero or more smaller
 hunts (over land). The Captain always begins the hunt from the start location
 (`@`), which is a water location. The First Mate begins a search party subhunt
 from a land location that was discovered by the Captain. Use the following hunt
-algorithm with the container (stack or queue) and initial location that suits
+algorithms with the container (stack or queue) and initial location that suits
 the hunter in charge.
 
-1. Add the initial location to the container. 
-  - For the Captain (sail container), this is the starting location, a water
-    location, `@` on the map
-  - For the First Mate (search container), this is wherever the search party
-    was put ashore
-2. If the container is empty, the hunt or subhunt has ended. If not, set the
-"current location" to the "next" available location in the container (where
-next is front for queue, top for stack) and remove it from the container. 
-  - For the Captain, an empty container means the entire hunt has ended in
-    failure; jump to Step #6
-  - For the First Mate, an empty container means a subhunt has ended and the
-    search party was put ashore at a location that had no path to the treasure
-    and must return to the ship; return to Step #3 where the Captain's hunt
-    left off
-3. From the current location, add any adjacent locations that are not impassable
-and have not already been discovered. Discover new locations as dictated by the
-Hunt Order.
-  - The Captain will only add water locations to the sail container. If the
-    Captain discovers land, the First Mate will be immediately put ashore,
-    before examining other adjacent locations, to start a search party at that
-    location using a separate container; jump to Step #1 
-  - The First Mate will only add land locations to the search container. If the
-    First Mate encounters water it will be ignored regardless of whether it has
-    already been discovered or not
-4. If any location added to a container is the treasure ('$'), end the hunt
-right away, because the existence of a path has been found; jump to Step #6
-5. Repeat from Step #2
-6. Report the outcome of the hunt (see Output Format)
+#### The Captain's Hunting
+
+1. Add the Starting Location (@ on the map) to the sail container.
+2. If the sail container is empty, the hunt has ended (jump to Step 5). If not,
+set the "sail location" to the "next" available location in the sail container
+(where next is front for queue, top for stack) and remove it from the
+sail container.
+3. From the sail location, add any adjacent locations that are not impassable
+and have not already been discovered to the sail container. Discover new
+locations as dictated by the Hunt Order. The Captain will only add water
+locations to the sail container.
+    - If the Captain discovers land, the First Mate
+      will be immediately put ashore (before the captain examines other adjacent
+      locations) to start a search party at that location using a separate container;
+      jump to Step #1 of the First Mate's Hunting. When the First Mate finishes
+      hunting, if the treasure was found, jump to Step 5. If the treasure was not
+      found, the Captain should continue searching any remaining locations around
+      the sail location.
+4. Repeat from Step 2.
+5. Report the outcome of the hunt (see Output Format).
+
+#### First Mate's Hunting
+
+The First Mate performs his hunting in a very similar method to the Captain,
+only on land.
+
+1. Add the Starting Location (wherever the search party was put ashore)
+to the search container.
+2. If the search container is empty, this land hunt has ended (jump to Step 5).
+If not, set the "search location" to the "next" available location in the search
+container (where next is front for queue, top for stack) and remove it from the
+search container.
+3. From the search location, add any adjacent locations that are not impassable
+and have not already been discovered to the search container. Discover new
+locations as dictated by the Hunt Order. The First Mate will only add land
+locations to the search container. If the First Mate encounters water it will be
+ignored regardless of whether it has already been discovered or not.
+    - If any location added to the search container is the treasure ('$'), end this
+      subhunt, because the existence of a path has been found; jump to Step #5.
+4. Repeat from Step 2.
+5. Report the outcome of the land hunt to the Captain (pick up where the Captain
+left off in The Captain's Hunting Step 3).
 
 ## Command Line Interfaces (CLI)
 
@@ -169,7 +182,7 @@ Output Redirection Operator (`<`). The following example runs `program` while
 reading input from `input.file` and writing output to `output.file`:
 
 ```bash
-% program < input.file > output.file
+% ./program < input.file > output.file
 ```
 
 Reading input from a file can be thought of as temporarily disconnecting the
@@ -197,8 +210,8 @@ is not specified, it will try to read from standard input. Programs that do
 this perform identically when invoked with the following two commands:
 
 ```bash
-% program < input.file   # Input redirection imitating keyboard input
-% program input.file     # Data read directly from an opened file
+% ./program < input.file   # Input redirection imitating keyboard input
+% ./program input.file     # Data read directly from an opened file
 ```
 
 To accomplish this in C++, use polymorphism and a few conditionals, and the
@@ -253,17 +266,17 @@ provided in one of two ways: a 2D ASCII map, or a list of coordinate/terrain
 triples (CTT). Both files will have similar front matter:
 
 1. Zero or more lines of comments, each of which...
-  - have an octothorpe (#) in column zero
-  - can contain any combination of zero or more printable ascii characters
-  - end with a newline character
+    - have an octothorpe (#) in column zero
+    - can contain any combination of zero or more printable ascii characters
+    - end with a newline character
 2. A filetype specifier, which is...
-  - a single ASCII character
-  - either M or L (for map or list files)
-  - followed by a newline character
+    - a single ASCII character
+    - either M or L (for map or list files)
+    - followed by a newline character
 3. A map size value, which is...
-  - a positive integer, >= 2
-  - both the width and the height of the map
-  - followed by a newline character
+    - a positive integer, >= 2
+    - both the width and the height of the map
+    - followed by a newline character
 
 **The starting location is always a water square, and the treasure location is
 always a land square.**
@@ -321,7 +334,7 @@ L
 ## The Command Line Interface (CLI)
 
 ```
-usage: hunt [options] [inputfile]
+usage: ./hunt [options] [inputfile]
 ```
 
 ### Supported Options
@@ -357,7 +370,8 @@ Treasure found at 0,0 with path length 8.
 
 The number of investigated locations, the treasure location, and the path
 length are all calculated or found based on a hunt of the input file, given
-the command line options provided.
+the command line options provided. Whenever a location is needed, it is
+always given in `<row>,<col>` format.
 
 ### Option: Verbose
 
@@ -554,17 +568,17 @@ targets (and more) will be included as well as the three listed above.
   included, which will speed up the autograder by not checking for bugs; this
   should be used when testing the simulation only
 
-The Makefile must compile all code using version 7.1.0 of the g++ compiler. This
+The Makefile must compile all code using version 6.2.0 of the g++ compiler. This
 is available on the CAEN Linux systems (accessible via login.engin.umich.edu).
 Even if everything seems to work on another operating system or with different
-versions of GCC, the course staff will not support anything other than GCC 7.1.0
-running on CAEN Linux. Note: In order to compile with g++ version 7.1.0 on CAEN
+versions of GCC, the course staff will not support anything other than GCC 6.2.0
+running on CAEN Linux. Note: In order to compile with g++ version 6.2.0 on CAEN
 and the autograder, include the following at the top of the Makefile:
 
 ```bash
-PATH := /usr/um/gcc-7.1.0/bin:$(PATH)
-LD_LIBRARY_PATH := /usr/um/gcc-7.1.0/lib64
-LD_RUN_PATH := /usr/um/gcc-7.1.0/lib64
+PATH := /usr/um/gcc-6.2.0/bin:$(PATH)
+LD_LIBRARY_PATH := /usr/um/gcc-6.2.0/lib64
+LD_RUN_PATH := /usr/um/gcc-6.2.0/lib64
 ```
 
 ### Source and Header Files
@@ -694,7 +708,9 @@ autograder finds (such as losing points for having a bad Makefile).
 * 10 points: Test file coverage (effectiveness at exposing buggy solutions).
 * 10 points: Memory leak check with valgrind
 
-All grading will be done by the autograder.
+All grading will be done by the autograder. By default, we will use your best
+submission for final grading. If you would like us to use your LAST submission
+instead, use this google form: https://docs.google.com/forms/d/e/1FAIpQLSe8BxRNnZKgRI4o-V7eG5F6LY_GhhWjMyJW8yKcP4XKVm2JrQ/viewform
 
 ### Memory Leak Check
 
@@ -706,7 +722,7 @@ All grading will be done by the autograder.
   pictures and make bulleted lists. Consider different possibilities before
   beginning to code. If there are problems at the design stage, come to office
   hours. After some design work is done and a general understanding of the
-  assignment and its scope is achieved, re-read this document.  Consult it often
+  assignment and its scope is achieved, re-read this document. Consult it often
   during development to ensure that all code is in compliance with the
   specification.
 * Always think through data structures and algorithms before coding. It is
@@ -735,8 +751,8 @@ Have fun coding!
 ## Libraries and Restrictions
 
 Unless otherwise stated, you are allowed and _encouraged_ to use all parts of
-the C++ STL and the other standard header files for this project.  You are
-**NOT** allowed to use other libraries (eg: boost, pthread, etc).  You are
+the C++ STL and the other standard header files for this project. You are
+**NOT** allowed to use other libraries (eg: boost, pthread, etc). You are
 **NOT** allowed to use the C++17 regular expressions library or the
 thread/atomics libraries (they may spoil runtime measurements).
 
@@ -903,7 +919,15 @@ Treasure found at 0,4 with path length 9.
 ## Appendix B: Tips
 
 If your code "works" when you don't compile with -O3 and breaks when you do, it
-means you have a bug in your code!
+means you have a bug in your code! Even if you think that your program is always
+working correctly, and especially when there are problems, you should use
+`valgrind` to check for errors. For example:
+
+```
+make debug
+valgrind ./hunt_debug -v < spec.map.txt
+```
+
 
 ## Appendix C: Test Case Legend
 
