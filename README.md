@@ -95,7 +95,7 @@ the hunter in charge.
     was put ashore
 2. If the container is empty, the hunt or subhunt has ended. If not, set the
 "current location" to the "next" available location in the container (where
-next is front for queue, back for stack) and remove it from the container. 
+next is front for queue, top for stack) and remove it from the container. 
   - For the Captain, an empty container means the entire hunt has ended in
     failure; jump to Step #6
   - For the First Mate, an empty container means a subhunt has ended and the
