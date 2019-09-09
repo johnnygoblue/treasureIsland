@@ -32,7 +32,7 @@ hunt must be displayed, or you will be forced to walk the plank!
 ### Example Map
 
 ```
-# Spec Map #1
+# Spec Map
 # Two small islands with treasure in the NW corner and start in the SE corner.
 M
 5
@@ -302,7 +302,7 @@ One possible list format file of the example map above follows.
 ### Example List Input
 
 ```
-# Spec Map #1
+# Spec Map
 # Two small islands with treasure in the NW corner and start in the SE corner.
 L
 5
