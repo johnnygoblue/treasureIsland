@@ -50,14 +50,14 @@ favor different methods of exploration. Each one has a default method for
 searching, and this can be overridden (more on this later).
 
 The Captain will travel from island to island with their own log and future
-plans, moving only over water locations ('.'). As soon as land is discovered
+plans, moving only over water locations (`.`). As soon as land is discovered
 while sailing, a search party is put ashore before any other discovery is
 attempted. Once put ashore to lead a search party, the First Mate will search
 all available land with a separate log and plans before returning to the ship,
-moving only over land locations ('o'). Any water (inland or open ocean)
+moving only over land locations (`o`). Any water (inland or open ocean)
 encountered by the search party is completely ignored. Neither the Captain nor
-the First Mate will ever accidentally overlook treasure ('$'), and both are
-unable to move over impassable terrain ('#').
+the First Mate will ever accidentally overlook treasure (`$`), and both are
+unable to move over impassable terrain (`#`).
 
 All discovery happens in adjacent squares using cardinal directions only: North,
 South, East, or West. New locations can be discovered by looking one square in
@@ -124,7 +124,7 @@ and have not already been discovered to the search container. Discover new
 locations as dictated by the Hunt Order. The First Mate will only add land
 locations to the search container. If the First Mate encounters water it will be
 ignored regardless of whether it has already been discovered or not.
-    - If any location added to the search container is the treasure ('$'), end this
+    - If any location added to the search container is the treasure (`$`), end this
       subhunt, because the existence of a path has been found; jump to Step 5.
 4. Repeat from Step 2.
 5. Report the outcome of the land hunt to the Captain (pick up where the Captain
@@ -177,12 +177,13 @@ reference can be found at [getopt man page](https://linux.die.net/man/3/getopt).
 ### Using Standard Input, Standard Output, Standard Error, and Redirection
 
 Most command line shells allow programs to send output to or read input from
-files. This is accomplished by using the Input Redirect Operator (`>`) or the
-Output Redirection Operator (`<`). The following example runs `program` while
-reading input from `input.file` and writing output to `output.file`:
+files. This is accomplished by using the Input Redirection Operator (`<`) or the
+Output Redirection Operator (`>`). The following example runs `hunt`, with the
+`-v` (verbose) option specified, while reading input from the file `input.txt`
+and writing output to the file `output.txt`:
 
 ```bash
-% ./program < input.file > output.file
+$ ./hunt -v < input.txt > output.txt
 ```
 
 Reading input from a file can be thought of as temporarily disconnecting the
@@ -201,63 +202,16 @@ text that would go to "standard output" and display on the screen, directly to
 the given file. Standard output can be accessed in C++ by using `std::cout`.
 
 Redirection can be done on input, output, both, or neither, as well as on
-"standard error", which is accessed with `std::cerr` and redirected with the
+"standard error" (which is accessed with `std::cerr`) and redirected with the
 Error Redirection Operator (`2>`). A good reference can be found at
 [Thoughtbot](https://thoughtbot.com/blog/input-output-redirection-in-the-shell).
 
-Often, a program will read from a file specified at the command line, or if one
-is not specified, it will try to read from standard input. Programs that do
-this perform identically when invoked with the following two commands:
-
-```bash
-% ./program < input.file   # Input redirection imitating keyboard input
-% ./program input.file     # Data read directly from an opened file
-```
-
-To accomplish this in C++, use polymorphism and a few conditionals, and the
-program can be written to handle input independently of how it is invoked. This
-pseudocode shows the technique:
-
-```c++
-#include <fstream>
-#include <iostream>
-#include <string>
-
-...
-    ifstream infile;  // Used to read from a file if a filename is given
-    string filename;  // Use getopt_long and argc + argv to get this value if it
-                      // is specified at the command line, it's otherwise empty
-
-    // getopt here!
-
-    // After exiting the while-loop with getopt_long(), if optind != argc,
-    // the command line contains a filename
-    if (optind != argc) {
-      filename = argv[argc];
-    }  // if
-
-    if (!filename.empty()) {  // The filename was specified at the command line
-        infile.open(filename);
-        if (!infile.is_open()) {  // Safety check for opening the file
-            cerr << "Unable to open input file: " << filename << endl;
-            exit(1);
-        }  // if
-    }  // if
-    istream &in = (infile.is_open()) ? infile : cin;  // Polymorphism & conditional
-
-    // Do the remainder of input using the stream extraction operator and 'in'
-    // If a file was specified 'in == infile'
-    // If no file was specified 'in == cin'
-    in >> file_type >> map_size;
-
-    // other input from 'in' here...
-
-    if (infile.open) {
-      // Close file after use, it's good housekeeping
-      infile.close();
-    }  // if
-...
-```
+Performing input redirection is especially useful with large input files:
+you wouldn't want to retype 10,000 lines of input, and even copying and pasting
+it could become irritating. Redirection is generally transparent to your program
+while it is running. The only exception to this is that many IDEs, such as Xcode,
+cannot perform redirection while running _inside_ of the IDE; we fix this by
+using `xcode_redirect.hpp`.
 
 ## Input File
 
@@ -533,6 +487,9 @@ errors, it will only be important to handle errors at the command line.
 6. All short or long options not in the spec should result in program
    termination with a non-zero exit code
 
+If any of these errors are discovered, you can immediately `exit(1)`, or have
+`main()` perform a `return 1`.
+
 ## Submission to the Autograder
 
 Keep all source files, header files, test files, and a Makefile in a directory
@@ -710,7 +667,7 @@ autograder finds (such as losing points for having a bad Makefile).
 
 All grading will be done by the autograder. By default, we will use your best
 submission for final grading. If you would like us to use your LAST submission
-instead, use this google form: https://docs.google.com/forms/d/e/1FAIpQLSe8BxRNnZKgRI4o-V7eG5F6LY_GhhWjMyJW8yKcP4XKVm2JrQ/viewform
+instead, use [this Google form](https://docs.google.com/forms/d/e/1FAIpQLSe8BxRNnZKgRI4o-V7eG5F6LY_GhhWjMyJW8yKcP4XKVm2JrQ/viewform).
 
 ### Memory Leak Check
 
@@ -736,15 +693,21 @@ instead, use this google form: https://docs.google.com/forms/d/e/1FAIpQLSe8BxRNn
 * Any diagnostic information may be printed to standard error (`cerr`) without
   penaltly. However, make sure it does not scale with the size of input, so that
   time and memory limits are not exceeded.
-* If the program does find a route, be sure to have `main()` return 0. If the
-  input is valid but no route exists, also have main() return 0.
+* If the program does find a route, be sure to have `main()` perform a
+  `return 0`. If the input is valid but no route exists, also have `main()`
+  perform a `return 0`. The only time you should use `exit()` is when you've
+  found a command-line error (see Error Handling and Assumptions above);
+  in these situations you should `exit(1)`.
 * It is strongly recommended that some form of version control (eg.: git, SVN,
   etc.) is used, and that files are committed at least as often as submissions
   are made to the autograder. If an online version control system is used, make
   sure that all projects and files are PRIVATE; many sites make them public by
   default! Any code found by another student and used, even without permission,
   could trigger Honor Code proceedings for both parties.
-* This is not an easy project. Start it immediately!
+* This is not an easy project. Start it immediately! As students pointed out in
+  the [Computing CARES](https://youtu.be/5MkRjP9qpKY) video, this means start
+  understanding and planning immediately, but start coding and submitting test
+  files soon. Do not wait until the day before it is due to get started.
 
 Have fun coding!
 
@@ -807,10 +770,11 @@ L
 
 ### The Hunts
 
-Hunt 1: with verbose, stats, and treasure map
+Hunt 1: with verbose, stats, and treasure map (output found in
+`appA.hunt1-vspM.sol.txt`).
 
-```
-$ ./hunt -svp M appA.map.txt | tee appA.hunt1-vspM.sol.txt
+```bash
+$ ./hunt -svp M < appA.map.txt
 Treasure hunt started at: 7,6
 Went ashore at: 6,4
 Searching island... party returned with no treasure.
@@ -838,9 +802,10 @@ Treasure found at 0,4 with path length 13.
 ```
 
 Hunt 2: with Captain using a queue, verbose, stats, and treasure map
+(output found in `appA.hunt2-vspMcQ.sol.txt`).
 
-```
-$ ./hunt -p M --stats -v -c queue appA.map.txt | tee appA.hunt2-vspMcQ.sol.txt
+```bash
+$ ./hunt -p M --stats -v -c queue < appA.map.txt
 Treasure hunt started at: 7,6
 Went ashore at: 6,4
 Searching island... party returned with no treasure.
@@ -868,9 +833,10 @@ Treasure found at 0,4 with path length 9.
 ```
 
 Hunt 3: with First Mate using a stack, verbose, stats, and treasure map
+(output found in `appA.hunt3-vspMfS.sol.txt`).
 
-```
-$ ./hunt -v -sp M appA.map.txt --first-mate stack | tee appA.hunt3-vspMfS.sol.txt
+```bash
+$ ./hunt -v -sp M < appA.map.txt --first-mate stack
 Treasure hunt started at: 7,6
 Went ashore at: 6,4
 Searching island... party returned with no treasure.
@@ -897,10 +863,11 @@ o..|ooo.
 Treasure found at 0,4 with path length 15.
 ```
 
-Hunt 4: with search order "swen" and coordinate list
+Hunt 4: with search order "swen" and coordinate list (output found in
+`appA.hunt4-pLoSWEN.sol.txt`).
 
-```
-$ ./hunt -o swen --show-path L appA.lst.txt | tee appA.hunt4-pLoSWEN.sol.txt
+```bash
+$ ./hunt -o swen --show-path L < appA.lst.txt
 Sail:
 7,6
 6,6
@@ -923,9 +890,9 @@ means you have a bug in your code! Even if you think that your program is always
 working correctly, and especially when there are problems, you should use
 `valgrind` to check for errors. For example:
 
-```
-make debug
-valgrind ./hunt_debug -v < spec.map.txt
+```bash
+$ make debug
+$ valgrind ./hunt_debug -v < spec.map.txt
 ```
 
 
@@ -953,7 +920,7 @@ or
   and memory required during the hunt
 * map_index is a two-digit, zero-based number that denotes either different
   input files, different command line options, or both
-* output_options is a collection of zero or more characters ('v', 's', and 'p')
+* output_options is a collection of zero or more characters (`v`, `s`, and `p`)
   representing CLI options above, where the order provided in the test case
   label need not match the order in the command line, and the options provided
   at the command line may be in short or long format
