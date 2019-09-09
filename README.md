@@ -101,7 +101,7 @@ locations to the sail container.
     - If the Captain discovers land, the First Mate
       will be immediately put ashore (before the captain examines other adjacent
       locations) to start a search party at that location using a separate container;
-      jump to Step #1 of the First Mate's Hunting. When the First Mate finishes
+      jump to Step 1 of the First Mate's Hunting. When the First Mate finishes
       hunting, if the treasure was found, jump to Step 5. If the treasure was not
       found, the Captain should continue searching any remaining locations around
       the sail location.
@@ -125,7 +125,7 @@ locations as dictated by the Hunt Order. The First Mate will only add land
 locations to the search container. If the First Mate encounters water it will be
 ignored regardless of whether it has already been discovered or not.
     - If any location added to the search container is the treasure ('$'), end this
-      subhunt, because the existence of a path has been found; jump to Step #5.
+      subhunt, because the existence of a path has been found; jump to Step 5.
 4. Repeat from Step 2.
 5. Report the outcome of the land hunt to the Captain (pick up where the Captain
 left off in The Captain's Hunting Step 3).
