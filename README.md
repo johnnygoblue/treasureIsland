@@ -59,11 +59,12 @@ encountered by the search party is completely ignored. Neither the Captain nor
 the First Mate will ever accidentally overlook treasure (`$`), and both are
 unable to move over impassable terrain (`#`).
 
-All discovery happens in adjacent squares using cardinal directions only: North,
-South, East, or West. New locations can be discovered by looking one square in
-each of these directions, but never diagonally or at a greater distance. Each
-square can only be discovered once; get these pirates stuck in an infinite loop,
-and you will most surely be keelhauled.
+All investigation happens in squares adjacent to the current location, whether
+on land or water. New locations can be discovered by looking one square in each
+of the cardinal directions: North, East, South, and West. Discovery will never
+happen diagonally or at a distance greater than one. Each square can only be
+discovered once; get these pirates stuck in an infinite loop, and you will most
+surely be keelhauled.
 
 To satisfy the moods of your "employers", you develop two routing schemes, one
 that uses a stack and one that uses a queue to store newly discovered locations.
@@ -72,11 +73,34 @@ Stack-based routing tends to continue investigation along a recent heading,
 eventually returning to locations that were passed in order to cover the hunt
 area, while queue-based routing covers the hunt area in ever-increasing radii.
 
+### Investigation and Discovery
+
+**Never use the term visited, or think in terms of locations visited.**
+
+While trying to find treasure and create a map, the important terms are
+**investigation** and **discovered**.
+
+Investigation is the act of examining squares adjacent the "current" location.
+An adjacent square can only be discovered if it is the proper terrain type
+(water while sailing, land while searching) and has not already been discovered.
+
+A newly discovered square should be marked as discovered immediately, to prevent
+infinite loops while investigating. This discovered location should then be
+added to the proper container, so that investigation can continue. If the
+location added to the container is the treasure location, it is important to
+stop investigating immediately.
+
+When a location is removed from a container, it becomes the current location,
+and investigation begins again. Since a location should only be added to a
+continer once (discovered), it can only become the current location once
+(investigation).
+
 ### The Hunt Order
 
 When discovering new locations use the Hunt Order to determine the order of
 investigation. By default the hunt order is North, East, South, West. Any
-expedition can choose another hunt order at the command line.
+expedition can choose another hunt order at the command line, but it must
+include each of the cardinal directions exactly once.
 
 ### The Hunt Algorithm
 
@@ -89,22 +113,21 @@ the hunter in charge.
 
 #### The Captain's Hunting
 
-1. Add the Starting Location (@ on the map) to the sail container.
+1. Add the Starting Location (`@` on the map) to the sail container.
 2. If the sail container is empty, the hunt has ended (jump to Step 5). If not,
-set the "sail location" to the "next" available location in the sail container
-(where next is front for queue, top for stack) and remove it from the
-sail container.
+   set the "sail location" to the "next" available location in the sail
+   container (where next is front for queue, top for stack) and remove it from
+   the sail container.
 3. From the sail location, add any adjacent locations that are not impassable
-and have not already been discovered to the sail container. Discover new
-locations as dictated by the Hunt Order. The Captain will only add water
-locations to the sail container.
-    - If the Captain discovers land, the First Mate
-      will be immediately put ashore (before the captain examines other adjacent
-      locations) to start a search party at that location using a separate
-      container; jump to Step 1 of the First Mate's Hunting. When the First
-      Mate finishes hunting, if the treasure was found, jump to Step 5. If the
-      treasure was not found, the Captain should continue searching any
-      remaining locations around the sail location.
+   and have not already been discovered to the sail container. Discover new
+   locations as dictated by the Hunt Order. The Captain will only add water
+   locations to the sail container.
+    - If the Captain discovers land, the First Mate will be immediately put
+      ashore (before the captain examines other adjacent locations) to start a
+      search party at that location using a separate container; jump to Step 1
+      of the First Mate's Hunting. When the First Mate finishes hunting, if the
+      treasure was found, jump to Step 5. If the treasure was not found, the
+      Captain should continue searching any remaining locations around the sail location.
 4. Repeat from Step 2.
 5. Report the outcome of the hunt (see Output Format).
 
