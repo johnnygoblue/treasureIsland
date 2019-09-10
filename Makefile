@@ -12,8 +12,8 @@
 # IMPORTANT NOTES:
 #   1. Set EXECUTABLE to the command name from the project specification.
 #   2. To enable automatic creation of unit test rules, your program logic
-#      (where main() is) should be in a file named project*.cpp or
-#      specified in the PROJECTFILE variable.
+#      (where main() is) should be in a file named project*.cpp or specified in
+#      the PROJECTFILE variable.
 #   3. Files you want to include in your final submission cannot match the
 #      test*.cpp pattern.
 
@@ -25,11 +25,10 @@ IDENTIFIER = 40FB54C86566B9DDEAB902CC80E8CE85C1C62AAD
 
 # Change EXECUTABLE to match the command name given in the project spec.
 EXECUTABLE  = hunt
-DEBUG       = $(EXECUTABLE)_debug
 
-# The following line looks for a project's main() in a file named project*.cpp,
+# The following line looks for a project's main() in files named project*.cpp,
 # executable.cpp (substituted from EXECUTABLE above), or main.cpp
-PROJECTFILE = $(or $(wildcard project*.cpp), $(wildcard $(EXECUTABLE).cpp), main.cpp)
+PROJECTFILE = $(or $(wildcard project*.cpp $(EXECUTABLE).cpp), main.cpp)
 # If main() is in another file delete line above, edit and uncomment below
 #PROJECTFILE = mymainfile.cpp
 #######################
@@ -37,12 +36,12 @@ PROJECTFILE = $(or $(wildcard project*.cpp), $(wildcard $(EXECUTABLE).cpp), main
 #######################
 
 # enables c++17 on CAEN or 281 autograder
-PATH := /usr/um/gcc-7.1.0/bin:$(PATH)
-LD_LIBRARY_PATH := /usr/um/gcc-7.1.0/lib64
-LD_RUN_PATH := /usr/um/gcc-7.1.0/lib64
+PATH := /usr/um/gcc-6.2.0/bin:$(PATH)
+LD_LIBRARY_PATH := /usr/um/gcc-6.2.0/lib64
+LD_RUN_PATH := /usr/um/gcc-6.2.0/lib64
 
-# This is the path from the CAEN home folder to where projects will be
-# uploaded. (eg. /home/mmdarden/eecs281/project1)
+# This is the path from the CAEN home folder to where projects will be uploaded.
+# (eg. /home/mmdarden/eecs281/project1)
 # Change this if you prefer a different path.
 # REMOTE_BASEDIR := w18/eecs281    # /home/mmdarden/w18/eecs281/project0
 REMOTE_BASEDIR := eecs281
@@ -69,25 +68,27 @@ FULL_SUBMITFILE = fullsubmit.tar.gz
 PERF_FILE = perf.data*
 
 #Default Flags (we prefer -std=c++17 but Mac/Xcode/Clang doesn't support)
-CXXFLAGS = -std=c++17 -Wconversion -Wall -Werror -Wextra -pedantic 
+CXXFLAGS = -std=c++1z -Wconversion -Wall -Werror -Wextra -pedantic 
 
 # make release - will compile "all" with $(CXXFLAGS) and the -O3 flag
 #                also defines NDEBUG so that asserts will not check
 release: CXXFLAGS += -O3 -DNDEBUG
 release: $(EXECUTABLE)
 
-# make debug - will compile "all" with $(CXXFLAGS) and the -g flag
+# make debug - will compile sources with $(CXXFLAGS) and the -g3 flag
 #              also defines DEBUG, so "#ifdef DEBUG /*...*/ #endif" works
-debug: EXECUTABLE := $(DEBUG)
 debug: CXXFLAGS += -g3 -DDEBUG
-debug: clean $(EXECUTABLE)
+debug:
+	$(CXX) $(CXXFLAGS) $(SOURCES) -o $(EXECUTABLE)_debug
 
 # make profile - will compile "all" with $(CXXFLAGS) and the -pg flag
-profile: CXXFLAGS += -pg
-profile: clean $(EXECUTABLE)
+#                also defines PROFILE, so "#ifdef PROFILE" works
+profile: CXXFLAGS += -pg -DPROFILE
+profile:
+	$(CXX) $(CXXFLAGS) $(SOURCES) -o $(EXECUTABLE)_profile
 
-# make static - will perform static analysis in the matter currently used
-#               on the autograder
+# make static - will perform static analysis in the matter currently used on
+#               the autograder
 static:
 	cppcheck --enable=all --suppress=missingIncludeSystem \
       $(SOURCES) *.h *.hpp
@@ -96,12 +97,15 @@ static:
 #                   include the project identifier; skip subdirectories;
 #                   also removes old submit tarballs, they are outdated
 identifier:
-	@if [ $$(grep --include=*.{h,hpp,c,cpp} --exclude=xcode_redirect.hpp --directories=skip -L $(IDENTIFIER) * | wc -l) -ne 0 ]; then echo -n "Missing project identifier in file(s): ";echo `grep --include=*.{h,hpp,c,cpp} --directories=skip -L $(IDENTIFIER) *`;rm -f $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE); exit 1; fi
+	@if [ $$(grep --include=*.{h,hpp,c,cpp} --exclude=xcode_redirect.hpp --directories=skip -L $(IDENTIFIER) * | wc -l) -ne 0 ]; then \
+		printf "Missing project identifier in file(s): "; \
+		echo `grep --include=*.{h,hpp,c,cpp} --directories=skip -L $(IDENTIFIER) *`; \
+		rm -f $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE); \
+		exit 1; \
+	fi
 
-# Build both release and debug executables
-all: clean
-	$(MAKE) -Rr release
-	$(MAKE) debug
+# Build all executables
+all: release debug profile
 
 $(EXECUTABLE): $(OBJECTS)
 ifeq ($(EXECUTABLE), executable)
@@ -127,7 +131,7 @@ define make_tests
 endef
 $(foreach test, $(TESTS), $(eval $(call make_tests, $(test))))
 
-alltests: clean $(TESTS)
+alltests: $(TESTS)
 
 # rule for creating objects
 %.o: %.cpp
@@ -135,28 +139,26 @@ alltests: clean $(TESTS)
 
 # make clean - remove .o files, executables, tarball
 clean:
-	rm -f $(OBJECTS) $(EXECUTABLE) $(DEBUG) $(TESTS) \
-      $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE) $(PERF_FILE)
+	rm -f $(OBJECTS) $(EXECUTABLE) $(EXECUTABLE)_debug $(EXECUTABLE)_profile \
+      $(TESTS) $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE) $(PERF_FILE)
 	rm -Rf *.dSYM
 
-# make partialsubmit.tar.gz - cleans, creates tarball
-# omitting test cases
+# make partialsubmit.tar.gz - cleans, creates tarball omitting test files
 PARTIAL_SUBMITFILES=$(filter-out $(TESTSOURCES), \
                       $(wildcard Makefile *.h *.hpp *.cpp))
 $(PARTIAL_SUBMITFILE): $(PARTIAL_SUBMITFILES)
 	rm -f $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE)
 	COPYFILE_DISABLE=true tar -vczf $(PARTIAL_SUBMITFILE) \
       $(PARTIAL_SUBMITFILES)
-	@echo !!! WARNING: No test cases included. Use 'make fullsubmit' to include test cases. !!!
+	@echo !!! WARNING: No test files included. Use 'make fullsubmit' to include test files. !!!
 
-# make fullsubmit.tar.gz - cleans, runs dos2unix, creates tarball
-# including test cases
+# make fullsubmit.tar.gz - cleans, creates tarball including test files
 FULL_SUBMITFILES=$(filter-out $(TESTSOURCES), \
                    $(wildcard Makefile *.h *.hpp *.cpp test*.txt))
 $(FULL_SUBMITFILE): $(FULL_SUBMITFILES)
 	rm -f $(PARTIAL_SUBMITFILE) $(FULL_SUBMITFILE)
 	COPYFILE_DISABLE=true tar -vczf $(FULL_SUBMITFILE) $(FULL_SUBMITFILES)
-	@echo !!! Final submission prepared, test cases included... READY FOR GRADING !!!
+	@echo !!! Final submission prepared, test files included... READY FOR GRADING !!!
 
 # shortcut for make submit tarballs
 partialsubmit: identifier $(PARTIAL_SUBMITFILE)
@@ -187,21 +189,19 @@ EECS281 Advanced Makefile Help
     2. Build, test, submit... repeat as necessary.
 
 * Preparing submissions
-    A) To build 'partialsubmit.tar.gz', a tarball without tests used to
-       find buggy solutions in the autograder.
+    A) To build 'partialsubmit.tar.gz', a tarball without tests used to find
+       buggy solutions in the autograder.
 
            *** USE THIS ONLY FOR TESTING YOUR SOLUTION! ***
 
-       This is useful for faster autograder runs during development and
-       free submissions if the project does not build.
+       This is useful for faster autograder runs during development and free
+       submissions if the project does not build.
            $$ make partialsubmit
-    B) Build 'fullsubmit.tar.gz' a tarball complete with autograder test
-       cases.
+    B) Build 'fullsubmit.tar.gz' a tarball complete with autograder test files.
 
            *** ALWAYS USE THIS FOR FINAL GRADING! ***
 
-       It is also useful when trying to find buggy solutions in the
-       autograder.
+       It is also useful when trying to find buggy solutions in the autograder.
            $$ make fullsubmit
 
 * Unit testing support
@@ -211,10 +211,9 @@ EECS281 Advanced Makefile Help
            $$ make test_input
            $$ make test3
            $$ make alltests        (this builds all test drivers)
-    C) If test drivers need special dependencies, they must be added
-       manually.
-    D) IMPORTANT: NO SOURCE FILES WITH NAMES THAT BEGIN WITH test WILL BE
-       ADDED TO ANY SUBMISSION TARBALLS.
+    C) If test drivers need special dependencies, they must be added manually.
+    D) IMPORTANT: NO SOURCE FILES WITH NAMES THAT BEGIN WITH test WILL BE ADDED
+       TO ANY SUBMISSION TARBALLS.
 
 * Static Analysis support
     A) Matches current autograder style grading tests
@@ -222,8 +221,8 @@ EECS281 Advanced Makefile Help
            $$ make static
 
 * Sync to CAEN support
-    A) Requires an .ssh/config file with a login.engin.umich.edu host
-       defined, SSH Multiplexing enabled, and an open SSH connection.
+    A) Requires an .ssh/config file with a login.engin.umich.edu host defined,
+       SSH Multiplexing enabled, and an open SSH connection.
     B) Edit the REMOTE_BASEDIR variable if default is not preferred.
     C) Usage:
            $$ make sync2caen
