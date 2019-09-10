@@ -100,11 +100,11 @@ locations as dictated by the Hunt Order. The Captain will only add water
 locations to the sail container.
     - If the Captain discovers land, the First Mate
       will be immediately put ashore (before the captain examines other adjacent
-      locations) to start a search party at that location using a separate container;
-      jump to Step 1 of the First Mate's Hunting. When the First Mate finishes
-      hunting, if the treasure was found, jump to Step 5. If the treasure was not
-      found, the Captain should continue searching any remaining locations around
-      the sail location.
+      locations) to start a search party at that location using a separate
+      container; jump to Step 1 of the First Mate's Hunting. When the First
+      Mate finishes hunting, if the treasure was found, jump to Step 5. If the
+      treasure was not found, the Captain should continue searching any
+      remaining locations around the sail location.
 4. Repeat from Step 2.
 5. Report the outcome of the hunt (see Output Format).
 
@@ -114,21 +114,22 @@ The First Mate performs his hunting in a very similar method to the Captain,
 only on land.
 
 1. Add the Starting Location (wherever the search party was put ashore)
-to the search container.
+   to the search container.
 2. If the search container is empty, this land hunt has ended (jump to Step 5).
-If not, set the "search location" to the "next" available location in the search
-container (where next is front for queue, top for stack) and remove it from the
-search container.
+   If not, set the "search location" to the "next" available location in the
+   search container (where next is front for queue, top for stack) and remove it
+   from the search container.
 3. From the search location, add any adjacent locations that are not impassable
-and have not already been discovered to the search container. Discover new
-locations as dictated by the Hunt Order. The First Mate will only add land
-locations to the search container. If the First Mate encounters water it will be
-ignored regardless of whether it has already been discovered or not.
-    - If any location added to the search container is the treasure (`$`), end this
-      subhunt, because the existence of a path has been found; jump to Step 5.
+   and have not already been discovered to the search container. Discover new
+   locations as dictated by the Hunt Order. The First Mate will only add land
+   locations to the search container. If the First Mate encounters water it
+   will be ignored regardless of whether it has already been discovered or not.
+    - If any location added to the search container is the treasure (`$`), end
+      this subhunt, because the existence of a path has been found; jump to
+      Step 5.
 4. Repeat from Step 2.
 5. Report the outcome of the land hunt to the Captain (pick up where the Captain
-left off in The Captain's Hunting Step 3).
+   left off in The Captain's Hunting Step 3).
 
 ## Command Line Interfaces (CLI)
 
@@ -209,9 +210,9 @@ Error Redirection Operator (`2>`). A good reference can be found at
 Performing input redirection is especially useful with large input files:
 you wouldn't want to retype 10,000 lines of input, and even copying and pasting
 it could become irritating. Redirection is generally transparent to your program
-while it is running. The only exception to this is that many IDEs, such as Xcode,
-cannot perform redirection while running _inside_ of the IDE; we fix this by
-using `xcode_redirect.hpp`.
+while it is running. The only exception to this is that many IDEs, such as
+Xcode, cannot perform redirection while running _inside_ of the IDE; we fix this
+by using `xcode_redirect.hpp`.
 
 ## Input File
 
@@ -661,13 +662,15 @@ autograder finds (such as losing points for having a bad Makefile).
              keep track of the fastest run times (“click on View scoreboard”
              from the autograder project page). This can be used to compare the
              efficiency of a submission to those of other students and
-             instructors. **These comparisons are not included in grades given.**
+             instructors. **These comparisons are not included in grades
+             given.**
 * 10 points: Test file coverage (effectiveness at exposing buggy solutions).
 * 10 points: Memory leak check with valgrind
 
 All grading will be done by the autograder. By default, we will use your best
 submission for final grading. If you would like us to use your LAST submission
-instead, use [this Google form](https://docs.google.com/forms/d/e/1FAIpQLSe8BxRNnZKgRI4o-V7eG5F6LY_GhhWjMyJW8yKcP4XKVm2JrQ/viewform).
+instead, use
+[this Google form](https://docs.google.com/forms/d/e/1FAIpQLSe8BxRNnZKgRI4o-V7eG5F6LY_GhhWjMyJW8yKcP4XKVm2JrQ/viewform). 
 
 ### Memory Leak Check
 
@@ -801,8 +804,8 @@ o..oo|o.
 Treasure found at 0,4 with path length 13.
 ```
 
-Hunt 2: with Captain using a queue, verbose, stats, and treasure map
-(output found in `appA.hunt2-vspMcQ.sol.txt`).
+Hunt 2: with Captain using a queue, verbose, stats, and treasure map (output
+found in `appA.hunt2-vspMcQ.sol.txt`).
 
 ```bash
 $ ./hunt -p M --stats -v -c queue < appA.map.txt
@@ -832,8 +835,8 @@ o..ooo|.
 Treasure found at 0,4 with path length 9.
 ```
 
-Hunt 3: with First Mate using a stack, verbose, stats, and treasure map
-(output found in `appA.hunt3-vspMfS.sol.txt`).
+Hunt 3: with First Mate using a stack, verbose, stats, and treasure map (output
+found in `appA.hunt3-vspMfS.sol.txt`).
 
 ```bash
 $ ./hunt -v -sp M < appA.map.txt --first-mate stack
@@ -894,7 +897,6 @@ working correctly, and especially when there are problems, you should use
 $ make debug
 $ valgrind ./hunt_debug -v < spec.map.txt
 ```
-
 
 ## Appendix C: Test Case Legend
 
