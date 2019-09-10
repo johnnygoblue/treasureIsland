@@ -938,3 +938,9 @@ or
 * M09-pM: A medium test that requires the path in treasure map format, in
   addition to results
 * L00: A large test that requires only results
+
+## Appendix V: The Example Video
+
+This is currently under production and should be released in the next day or
+so. We will announce the release on Piazza, and then update the link in this
+document.
