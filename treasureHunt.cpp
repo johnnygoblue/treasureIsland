@@ -32,12 +32,21 @@ void TreasureHunt::read_data() {
 		} else { // reading map content
 			if (is_map) {
 				for (unsigned i = 0; i < map_size; ++i) {
-					map[row][col++] = junk[i];
+					map[row][col] = junk[i];
+					if (map[row][col] == '@') {
+						start.row = row;
+						start.col = col;
+					}
+					++col;
 				}
 				++row;
 				col = 0;
 			} else {
 				map[static_cast<size_t>(junk[0]-48)][static_cast<size_t>(junk[2]-48)] = junk[4];
+				if (junk[4] == '@') {
+					start.row = static_cast<unsigned>(junk[0]-48);
+					start.col = static_cast<unsigned>(junk[2]-48);
+				}
 			}
 		}
 	}
@@ -66,4 +75,9 @@ void TreasureHunt::print_map() {
 		}
 		cout << "\n";
 	}
+}
+
+void TreasureHunt::print_start() {
+	cout << "start location (" << start.row << " , " <<
+		start.col << ")\n";
 }

@@ -20,6 +20,8 @@ class TreasureHunt {
 
 		void print_map();
 
+		void print_start();
+
 		void get_options(int argc, char** argv);
 
 		void hunt();
@@ -32,6 +34,7 @@ class TreasureHunt {
 
 		deque<Cell> path;
 
+		struct Cell start{0, 0};
 
 		unsigned map_size = 0;
 
