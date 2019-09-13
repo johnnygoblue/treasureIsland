@@ -32,6 +32,7 @@ class TreasureHunt {
 
 		deque<Cell> path;
 
+
 		unsigned map_size = 0;
 
 		//char order[4] = {'N', 'E', 'S', 'W'};

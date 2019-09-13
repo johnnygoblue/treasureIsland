@@ -37,10 +37,9 @@ void TreasureHunt::read_data() {
 				++row;
 				col = 0;
 			} else {
-				cout << "Should not see this\n";
+				map[static_cast<size_t>(junk[0]-48)][static_cast<size_t>(junk[2]-48)] = junk[4];
 			}
 		}
-		cout << "line=" << junk << "\n";
 	}
 };
 
