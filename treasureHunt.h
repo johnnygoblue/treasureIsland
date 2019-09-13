@@ -8,8 +8,8 @@ using std::deque;
 using std::string;
 
 struct Cell {
-	unsigned row;
-	unsigned col;
+	int row;
+	int col;
 };
 
 class TreasureHunt {
@@ -30,13 +30,15 @@ class TreasureHunt {
 
 		bool is_number(const string &);
 
+		bool explore_cell(int row, int col, bool os_land);
+
 		vector<vector<char>> map;
 
 		deque<Cell> path;
 
-		struct Cell start{0, 0};
+		struct Cell start{-1, -1};
 
-		unsigned map_size = 0;
+		int map_size = 0;
 
 		//char order[4] = {'N', 'E', 'S', 'W'};
 

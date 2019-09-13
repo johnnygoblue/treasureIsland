@@ -11,7 +11,7 @@ using std::stoi;
 
 void TreasureHunt::read_data() {
 	string junk;
-	unsigned row = 0, col = 0;
+	int row = 0, col = 0;
 	bool comment = true;
     bool is_map = false;
 
@@ -24,16 +24,16 @@ void TreasureHunt::read_data() {
 			}
 			comment = false;
 		} else if (is_number(junk)) {
-			map_size = static_cast<unsigned>(stoi(junk));
-			map.resize(map_size);
-			for (unsigned i = 0; i < map_size; ++i) {
-				map[i].resize(map_size, '.');
+			map_size = stoi(junk);
+			map.resize(static_cast<size_t>(map_size));
+			for (int i = 0; i < map_size; ++i) {
+				map[static_cast<size_t>(i)].resize(static_cast<size_t>(map_size), '.');
 			}
 		} else { // reading map content
 			if (is_map) {
-				for (unsigned i = 0; i < map_size; ++i) {
-					map[row][col] = junk[i];
-					if (map[row][col] == '@') {
+				for (int i = 0; i < map_size; ++i) {
+					map[static_cast<size_t>(row)][static_cast<size_t>(col)] = junk[static_cast<size_t>(i)];
+					if (map[static_cast<size_t>(row)][static_cast<size_t>(col)] == '@') {
 						start.row = row;
 						start.col = col;
 					}
@@ -44,8 +44,8 @@ void TreasureHunt::read_data() {
 			} else {
 				map[static_cast<size_t>(junk[0]-48)][static_cast<size_t>(junk[2]-48)] = junk[4];
 				if (junk[4] == '@') {
-					start.row = static_cast<unsigned>(junk[0]-48);
-					start.col = static_cast<unsigned>(junk[2]-48);
+					start.row = junk[0]-48;
+					start.col = junk[2]-48;
 				}
 			}
 		}
@@ -69,9 +69,9 @@ bool TreasureHunt::is_number(const string &s) {
 }
 
 void TreasureHunt::print_map() {
-	for (unsigned i = 0; i < map_size; ++i) {
-		for (unsigned j = 0; j < map_size; ++j) {
-			cout << map[i][j];
+	for (int i = 0; i < map_size; ++i) {
+		for (int j = 0; j < map_size; ++j) {
+			cout << map[static_cast<size_t>(i)][static_cast<size_t>(j)];
 		}
 		cout << "\n";
 	}
@@ -80,4 +80,24 @@ void TreasureHunt::print_map() {
 void TreasureHunt::print_start() {
 	cout << "start location (" << start.row << " , " <<
 		start.col << ")\n";
+}
+
+bool TreasureHunt::explore_cell(int row, int col, bool on_land) {
+	// check if out of bounds
+	if (row < 0 || row >= map_size || col < 0 || col >= map_size) {
+		return false;
+	}
+	// check if terrain unpassable
+	if (map[static_cast<size_t>(row)][static_cast<size_t>(col)] == '#') {
+		return false;
+	}
+	// check if cell is already explored
+	if (map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 'n' || map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 'e' || map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 's' || map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 'w') {
+		return false;
+	}
+	// if on-land, check if ocean cell
+	if (on_land && map[static_cast<size_t>(row)][static_cast<size_t>(col)] == '.') {
+		return false;
+	}
+	return true;
 }
