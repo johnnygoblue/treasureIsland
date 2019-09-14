@@ -28,13 +28,16 @@ void TreasureHunt::read_data() {
 			map_size = stoi(junk);
 			map.resize(static_cast<size_t>(map_size));
 			for (int i = 0; i < map_size; ++i) {
-				map[static_cast<size_t>(i)].resize(static_cast<size_t>(map_size), '.');
+				map[static_cast<size_t>(i)].resize(static_cast<size_t> \
+						(map_size), '.');
 			}
 		} else { // reading map content
 			if (is_map) {
 				for (int i = 0; i < map_size; ++i) {
-					map[static_cast<size_t>(row)][static_cast<size_t>(col)] = junk[static_cast<size_t>(i)];
-					if (map[static_cast<size_t>(row)][static_cast<size_t>(col)] == '@') {
+					map[static_cast<size_t>(row)][static_cast<size_t>(col)] \
+						= junk[static_cast<size_t>(i)];
+					if (map[static_cast<size_t>(row)][static_cast<size_t> \
+							(col)] == '@') {
 						start.row = row;
 						start.col = col;
 						path.push_back(start);
@@ -44,7 +47,8 @@ void TreasureHunt::read_data() {
 				++row;
 				col = 0;
 			} else {
-				map[static_cast<size_t>(junk[0]-'0')][static_cast<size_t>(junk[2]-'0')] = junk[4];
+				map[static_cast<size_t>(junk[0]-'0')][static_cast<size_t> \
+					(junk[2]-'0')] = junk[4];
 				if (junk[4] == '@') {
 					start.row = junk[0]-'0';
 					start.col = junk[2]-'0';
@@ -95,11 +99,15 @@ bool TreasureHunt::explore_cell(int row, int col, bool on_land) {
 		return false;
 	}
 	// check if cell is already explored
-	if (map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 'n' || map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 'e' || map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 's' || map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 'w') {
+	if (map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 'n' ||
+		map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 'e' ||
+		map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 's' ||
+		map[static_cast<size_t>(row)][static_cast<size_t>(col)] == 'w') {
 		return false;
 	}
 	// if on-land, check if ocean cell
-	if (on_land && map[static_cast<size_t>(row)][static_cast<size_t>(col)] == '.') {
+	if (on_land && map[static_cast<size_t>(row)][static_cast<size_t>(col)] \
+			== '.') {
 		return false;
 	}
 	return true;
