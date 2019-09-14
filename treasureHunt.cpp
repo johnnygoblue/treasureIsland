@@ -44,10 +44,10 @@ void TreasureHunt::read_data() {
 				++row;
 				col = 0;
 			} else {
-				map[static_cast<size_t>(junk[0]-48)][static_cast<size_t>(junk[2]-48)] = junk[4];
+				map[static_cast<size_t>(junk[0]-'0')][static_cast<size_t>(junk[2]-'0')] = junk[4];
 				if (junk[4] == '@') {
-					start.row = junk[0]-48;
-					start.col = junk[2]-48;
+					start.row = junk[0]-'0';
+					start.col = junk[2]-'0';
 					path.push_back(start);
 				}
 			}
