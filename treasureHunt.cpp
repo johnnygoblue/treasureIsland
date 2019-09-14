@@ -11,6 +11,7 @@ using std::stoi;
 
 void TreasureHunt::read_data() {
 	string junk;
+	struct Cell start{-1, -1};
 	int row = 0, col = 0;
 	bool comment = true;
     bool is_map = false;
@@ -36,6 +37,7 @@ void TreasureHunt::read_data() {
 					if (map[static_cast<size_t>(row)][static_cast<size_t>(col)] == '@') {
 						start.row = row;
 						start.col = col;
+						path.push_back(start);
 					}
 					++col;
 				}
@@ -46,6 +48,7 @@ void TreasureHunt::read_data() {
 				if (junk[4] == '@') {
 					start.row = junk[0]-48;
 					start.col = junk[2]-48;
+					path.push_back(start);
 				}
 			}
 		}
@@ -78,8 +81,8 @@ void TreasureHunt::print_map() {
 }
 
 void TreasureHunt::print_start() {
-	cout << "start location (" << start.row << " , " <<
-		start.col << ")\n";
+	cout << "start location (" << path.front().row << " , " <<
+		path.front().col << ")\n";
 }
 
 bool TreasureHunt::explore_cell(int row, int col, bool on_land) {
