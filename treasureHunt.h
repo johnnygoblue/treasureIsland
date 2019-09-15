@@ -7,9 +7,23 @@ using std::vector;
 using std::deque;
 using std::string;
 
-struct Cell {
-	int row;
-	int col;
+class Cell {
+	public:
+		Cell(const int n, const int m) : row(n), col(m) {}
+		inline Cell north() {
+			return Cell(row-1, col);
+		};
+		inline Cell east() {
+			return Cell(row, col+1);
+		};
+		inline Cell south() {
+			return Cell(row+1, col);
+		};
+		inline Cell west() {
+			return Cell(row, col-1);
+		};
+		int row;
+		int col;
 };
 
 class TreasureHunt {
@@ -30,14 +44,38 @@ class TreasureHunt {
 
 		bool is_number(const string &);
 
-		bool explore_cell(int row, int col, bool os_land);
+		inline bool is_land(Cell c);
+
+		inline bool is_in_bound(Cell c);
+
+		bool is_valid_cell(Cell c, bool on_land);
+
+		inline bool is_ashore(Cell c, char dir);
+
+		inline bool is_treasure(Cell c);
+
+		bool add_cell(Cell c, bool on_land);
+
+		inline void set_cell(Cell c, const char ch);
+
+		void captain_do();
+
+		void first_mate_do();
 
 		vector<vector<char>> map;
 
-		deque<Cell> path;
+		deque<Cell> sea;
+
+		deque<Cell> land;
+
+		Cell treasure = Cell(-1, -1);
 
 		int map_size = 0;
 
-		//char order[4] = {'N', 'E', 'S', 'W'};
+		char order[4] = {'N', 'E', 'S', 'W'};
+
+		char capt_mode = 's';
+
+		char mate_mode = 'q';
 
 };
