@@ -6,7 +6,8 @@ int main() {
 		TreasureHunt hunt;
 		hunt.read_data();
 		hunt.print_map();
-		hunt.print_start();
+		hunt.hunt();
+		hunt.print_treasure();
 	}
 	catch(std::runtime_error &e) {
 		std::cerr << e.what() << std::endl;

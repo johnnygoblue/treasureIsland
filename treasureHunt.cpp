@@ -86,9 +86,42 @@ void TreasureHunt::print_map() {
 	}
 }
 
+void TreasureHunt::print_cell(Cell c) {
+	cout << "(" << c.row << "," << c.col << ") ";
+}
+
 void TreasureHunt::print_start() {
-	cout << "start location (" << sea.front().row << " , " <<
-		sea.front().col << ")\n";
+	cout << "Start location: ";
+	print_cell(sea.back());
+}
+
+void TreasureHunt::print_sea() {
+	cout << "sea: ";
+	deque<Cell> sea_copy = sea;
+	while (!sea_copy.empty()) {
+		print_cell(sea_copy.back());
+		sea_copy.pop_back();
+	}
+	cout << "\n";
+}
+
+void TreasureHunt::print_land() {
+	cout << "land: ";
+	deque<Cell> land_copy = land;
+	while (!land_copy.empty()) {
+		print_cell(land_copy.front());
+		land_copy.pop_front();
+	}
+	cout << "\n";
+}
+
+void TreasureHunt::print_treasure() {
+	if (treasure.row == -1 && treasure.col == -1) {
+		cout << "Treasure not found!\n";
+	} else {
+		cout << "Treasure found at ";
+		print_cell(treasure);
+	}
 }
 
 bool TreasureHunt::is_valid_cell(Cell c, bool on_land) {
@@ -101,10 +134,10 @@ bool TreasureHunt::is_valid_cell(Cell c, bool on_land) {
 		return false;
 	}
 	// check if cell is already explored
-	if (map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == 'n' ||
-		map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == 'e' ||
-		map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == 's' ||
-		map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == 'w') {
+	if (tolower(map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)]) == 'n' ||
+		tolower(map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)]) == 'e' ||
+		tolower(map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)]) == 's' ||
+		tolower(map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)]) == 'w') {
 		return false;
 	}
 	// if on-land, check if ocean cell
@@ -157,7 +190,10 @@ inline bool TreasureHunt::is_ashore(Cell c, char dir) {
 	}
 	if (is_valid_cell(next, false) && is_land(next)) {
 		land.push_back(next);
-		set_cell(c, dir);
+		set_cell(next, dir);
+		if (print_verbose) {
+			cout << "Went ashore at: " << next.row << "," << next.col << "\n";
+		}
 		return true;
 	}
 	return false;
@@ -165,27 +201,11 @@ inline bool TreasureHunt::is_ashore(Cell c, char dir) {
 
 // Make sure is_valid_cell returns true before you call this function
 inline bool TreasureHunt::is_treasure(Cell c, char dir) {
-	Cell next(-1, -1);
-	switch (dir) {
-		case 'N':
-			next = c.north();
-			break;
-		case 'E':
-			next = c.east();
-			break;
-		case 'S':
-			next = c.south();
-			break;
-		case 'W':
-			next = c.west();
-			break;
-		default:
-			cerr << "Unknown direction '" << dir <<
-				"' in " << __func__ << endl;
-	}
-	if (map[static_cast<size_t>(next.row)][static_cast<size_t>(next.col)] == '$') {
-		treasure.row = next.row;
-		treasure.col = next.col;
+	if (map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == '$') {
+		treasure.row = c.row;
+		treasure.col = c.col;
+		set_cell(treasure, dir);
+		clean_up();
 		return true;
 	}
 	return false;
@@ -213,30 +233,44 @@ void TreasureHunt::captain_do() {
 					if (is_ashore(curr, 'N')) {
 						first_mate_do();
 					} else {
-						add_cell(curr.north(), false);
+						if (add_cell(curr.north(), false, 'N')) {
+							cout << "return in dir " << order[i] << endl;
+							return;
+						}
 					}
 					break;
 				case 'E':
 					if (is_ashore(curr, 'E')) {
 						first_mate_do();
 					} else {
-						add_cell(curr.east(), false);
+						if (add_cell(curr.east(), false, 'E')) {
+							cout << "return in dir " << order[i] << endl;
+							return;
+						}
 					}
 					break;
 				case 'S':
 					if (is_ashore(curr, 'S')) {
 						first_mate_do();
 					} else {
-						add_cell(curr.south(), false);
+						if (add_cell(curr.south(), false, 'S')) {
+							cout << "return in dir " << order[i] << endl;
+							return;
+						}
 					}
 					break;
 				case 'W':
 					if (is_ashore(curr, 'W')) {
 						first_mate_do();
 					} else {
-						add_cell(curr.west(), false);
+						if (add_cell(curr.west(), false, 'W')) {
+							cout << "return in dir " << order[i] << endl;
+							return;
+						}
 					}
 					break;
+				default:
+					cerr << "Bad direction in " << __func__ << endl;
 			} // switch
 		} // for
 		captain_do();
@@ -245,16 +279,30 @@ void TreasureHunt::captain_do() {
 
 // The ashore (sea->land) case should already be handled before
 // attempt to call this function. Therefore, this function only
-// handles seas->sea and land->land cell exploration
-void TreasureHunt::add_cell(Cell c, bool on_land) {
-	// if on-land and is valid cell
-	if (on_land && is_valid_cell(c, on_land)) {
-		land.push_back(c);
-	}
-	// if on-sea and cell is valid sea
-	if (!on_land && is_valid_cell(c, on_land) && !is_land(c)) {
-		sea.push_back(c);
-	}
+// handles seas->sea and land->land cell exploration.
+// Returns true if is_treasure() is true, false othewise.
+bool TreasureHunt::add_cell(Cell c, bool on_land, char dir) {
+	if (is_valid_cell(c, on_land)) {
+		// check if is treasure cell
+		if (is_treasure(c, dir)) {
+			return true;
+		}
+		// if on-land and is valid land cell
+		else if (on_land) {
+			set_cell(c, dir);
+			land.push_back(c);
+		}
+		// if on sea and is valid sea cell
+		else if (!on_land) {
+			set_cell(c, dir);
+			sea.push_back(c);
+		}
+		// should never be here
+		else {
+			cerr << "Bad state in " << __func__ << endl;
+		}
+	} // outer if
+	return false;
 }
 
 void TreasureHunt::first_mate_do() {
@@ -272,19 +320,37 @@ void TreasureHunt::first_mate_do() {
 		for (int i = 0; i < 4; ++i) {
 			switch (order[i]) {
 				case 'N':
-					add_cell(curr.north(), true);
+					if (add_cell(curr.north(), true, 'N')) {
+						return;
+					}
 					break;
 				case 'E':
-					add_cell(curr.east(), true);
+					if (add_cell(curr.east(), true, 'E')) {
+						return;
+					}
 					break;
 				case 'S':
-					add_cell(curr.south(), true);
+					if (add_cell(curr.south(), true, 'S')) {
+						return;
+					}
 					break;
 				case 'W':
-					add_cell(curr.west(), true);
+					if (add_cell(curr.west(), true, 'W')) {
+						return;
+					}
 					break;
 			} // switch
 		} // for
 		first_mate_do();
 	} // else
+}
+
+// clean up sea and land container after treasure is found
+void TreasureHunt::clean_up() {
+	while (!land.empty()) {
+		land.pop_back();
+	}
+	while (!sea.empty()) {
+		sea.pop_back();
+	}
 }

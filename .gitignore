@@ -1,6 +1,7 @@
 hunt
 fullsubmit.tar.gz
 partialsubmit.tar.gz
+tags
 **.swp
 *.o
 *.code-workspace

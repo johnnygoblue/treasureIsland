@@ -34,7 +34,13 @@ class TreasureHunt {
 
 		void print_map();
 
+		void print_sea();
+
+		void print_land();
+
 		void print_start();
+
+		void print_treasure();
 
 		void get_options(int argc, char** argv);
 
@@ -52,15 +58,19 @@ class TreasureHunt {
 
 		inline bool is_ashore(Cell c, char dir);
 
-		inline bool is_treasure(Cell c);
+		inline bool is_treasure(Cell c, char dir);
 
-		bool add_cell(Cell c, bool on_land);
+		bool add_cell(Cell c, bool on_land, char dir);
 
 		inline void set_cell(Cell c, const char ch);
 
 		void captain_do();
 
 		void first_mate_do();
+
+		void print_cell(Cell c);
+
+		void clean_up();
 
 		vector<vector<char>> map;
 
@@ -72,10 +82,24 @@ class TreasureHunt {
 
 		int map_size = 0;
 
+		//int iter = 0;
+
 		char order[4] = {'N', 'E', 'S', 'W'};
+
+		unsigned short water_length = 0;
+
+		unsigned short land_length = 0;
 
 		char capt_mode = 's';
 
 		char mate_mode = 'q';
+
+		char path_mode = 'M';
+
+		bool print_verbose = false;
+
+		bool print_stats = false;
+
+		bool show_path = false;
 
 };
