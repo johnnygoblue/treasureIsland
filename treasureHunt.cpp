@@ -72,6 +72,11 @@ void TreasureHunt::hunt() {
 	captain_do();
 };
 
+// Cell is valid cell before you call this function
+inline char TreasureHunt::get_cell(Cell c) {
+	return map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)];
+}
+
 bool TreasureHunt::is_number(const string &s) {
 	string::const_iterator it = s.begin();
 	while(it != s.end() && isdigit(*it)) {
@@ -151,6 +156,10 @@ bool TreasureHunt::is_valid_cell(Cell c, bool on_land) {
 	return true;
 }
 
+inline bool TreasureHunt::cell_equal(Cell c1, Cell c2) {
+	return (c1.row == c2.row) && (c1.col == c2.col);
+}
+
 inline bool TreasureHunt::is_land(Cell c) {
 	return map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == 'o';
 }
@@ -172,6 +181,9 @@ inline void TreasureHunt::set_cell(Cell c, const char ch) {
 	map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] = ch;
 }
 
+// This function should only be called when the Cell c is a sea cell
+// Given Cell c and diretion dir to c, return whether the target cell
+// is a land cell
 inline bool TreasureHunt::is_ashore(Cell c, char dir) {
 	Cell next(-1, -1);
 	switch (dir) {
@@ -192,20 +204,26 @@ inline bool TreasureHunt::is_ashore(Cell c, char dir) {
 				"' in " << __func__ << endl;
 	} //switch
 	if (is_valid_cell(next, false)) {
-		if (print_verbose) {
-			cout << "Went ashore at: " << next.row << "," << next.col << "\n";
-			cout << "Searching island... ";
-		}
 		if (is_treasure(next, dir)) { // if cell ashore is treasure
+			if (print_verbose) {
+				cout << "Went ashore at: " << next.row << "," << next.col << "\n";
+				cout << "Searching island... ";
+			}
+			ashore++;
 			return true;
 		} else if (is_land(next)) { // if cell ashore is good land
+			if (print_verbose) {
+				cout << "Went ashore at: " << next.row << "," << next.col << "\n";
+				cout << "Searching island... ";
+			}
+			ashore++;
 			land.push_back(next);
 			set_cell(next, dir);
 			return true;
 		} else {
-			cerr << "Bad state in " << __func__ << endl;
+			return false;
 		}
-	} // if
+	} // if is_valid_cell
 	return false;
 }
 
@@ -224,6 +242,7 @@ inline bool TreasureHunt::is_treasure(Cell c, char dir) {
 			cout << "party found treasure at " << treasure.row << "," <<
 				treasure.col << "\n";
 		}
+		calculate_path_length();
 		clean_up();
 		return true;
 	}
@@ -236,12 +255,15 @@ void TreasureHunt::captain_do() {
 			if (print_verbose) {
 				cout << "Treasure hunt failed\n";
 			}
-			cout << "No treasure found after investigating " << water_length +
-				land_length << " locations.\n";
-		return;
+			cout << "No treasure found after investigating " << water_loc +
+				land_loc << " locations.\n";
 		}
+		if (print_stats) {
+			print_hunt_stats();
+		}
+		return;
 	} else {
-		land_length++;
+		water_loc++;
 		Cell curr = Cell(-1, -1);
 
 		// get next cell and pop it from sail container
@@ -339,7 +361,7 @@ void TreasureHunt::first_mate_do() {
 		}
 		return;
 	} else {
-		water_length++;
+		land_loc++;
 		Cell curr = Cell(-1, -1);
 		if (mate_mode == 's') {
 			curr = land.back();
@@ -376,12 +398,52 @@ void TreasureHunt::first_mate_do() {
 	} // else
 }
 
+void TreasureHunt::calculate_path_length() {
+	Cell temp = treasure;
+	while (!cell_equal(temp, start)) {
+		switch (get_cell(temp)) {
+			case 'N':
+				temp = temp.south();
+				break;
+			case 'E':
+				temp = temp.west();
+				break;
+			case 'S':
+				temp = temp.north();
+				break;
+			case 'W':
+				temp = temp.east();
+				break;
+			default:
+				cerr << "Unrecognized cell '" << get_cell(temp) << "' in " <<
+					__func__ << endl;
+		} // switch
+		path_length++;
+	} // while
+}
+
 // clean up sea and land container after treasure is found
 void TreasureHunt::clean_up() {
+	cout << "Treasure found at " << treasure.row << "," << treasure.col <<
+		" with path length " << path_length << ".\n";
 	while (!land.empty()) {
 		land.pop_back();
 	}
 	while (!sea.empty()) {
 		sea.pop_back();
 	}
+}
+
+void TreasureHunt::print_hunt_stats() {
+	cout << "--- STATS ---\n";
+	cout << "Starting location: " << start.row << "," << start.col << "\n";
+	cout << "Water locations investigated: " << water_loc << "\n";
+	cout << "Land locations investigated: " << land_loc << "\n";
+	cout << "Went ashore: " << ashore << "\n";
+	if (!no_treasure()) {
+		cout << "Path length: " << path_length << "\n";
+		cout << "Treasure location: " << treasure.row << "," <<
+			treasure.col << "\n";
+	}
+	cout << "--- STATS ---\n";
 }

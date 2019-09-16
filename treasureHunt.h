@@ -48,9 +48,13 @@ class TreasureHunt {
 
 	private:
 
+		inline char get_cell(Cell c);
+
 		bool is_number(const string &);
 
 		inline bool is_land(Cell c);
+
+		inline bool cell_equal(Cell c1, Cell c2);
 
 		inline bool is_in_bound(Cell c);
 
@@ -72,7 +76,11 @@ class TreasureHunt {
 
 		void print_cell(Cell c);
 
+		void calculate_path_length();
+
 		void clean_up();
+
+		void print_hunt_stats();
 
 		vector<vector<char>> map;
 
@@ -90,20 +98,22 @@ class TreasureHunt {
 
 		char order[4] = {'N', 'E', 'S', 'W'};
 
-		unsigned short water_length = 0;
+		unsigned short path_length;
 
-		unsigned short land_length = 0;
+		unsigned short water_loc = 0;
+
+		unsigned short land_loc = 0;
+
+		unsigned short ashore = 0;
 
 		char capt_mode = 's';
 
 		char mate_mode = 'q';
 
-		char print_path_mode = 'M';
+		bool print_verbose = true;
 
-		bool print_verbose = false;
+		bool print_stats = true;
 
-		bool print_stats = false;
-
-		bool show_path = false;
+		//bool show_path = 'f'; // false by default
 
 };

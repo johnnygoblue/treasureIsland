@@ -7,7 +7,7 @@ int main() {
 		hunt.read_data();
 		hunt.print_map();
 		hunt.hunt();
-		hunt.print_treasure();
+		//hunt.print_treasure();
 	}
 	catch(std::runtime_error &e) {
 		std::cerr << e.what() << std::endl;
