@@ -13,7 +13,6 @@ using std::stoi;
 
 void TreasureHunt::read_data() {
 	string junk;
-	Cell start(-1, -1);
 	int row = 0, col = 0;
 	bool comment = true;
     bool is_map = false;
@@ -66,6 +65,10 @@ void TreasureHunt::get_options(int, char**) {
 };
 
 void TreasureHunt::hunt() {
+	if (print_verbose) {
+		cout << "Treasure hunt started at: " << start.row << "," <<
+			start.col << "\n";
+	}
 	captain_do();
 };
 
@@ -187,24 +190,40 @@ inline bool TreasureHunt::is_ashore(Cell c, char dir) {
 		default:
 			cerr << "Unknown direction '" << dir <<
 				"' in " << __func__ << endl;
-	}
-	if (is_valid_cell(next, false) && is_land(next)) {
-		land.push_back(next);
-		set_cell(next, dir);
+	} //switch
+	if (is_valid_cell(next, false)) {
 		if (print_verbose) {
 			cout << "Went ashore at: " << next.row << "," << next.col << "\n";
+			cout << "Searching island... ";
 		}
-		return true;
-	}
+		if (is_treasure(next, dir)) { // if cell ashore is treasure
+			return true;
+		} else if (is_land(next)) { // if cell ashore is good land
+			land.push_back(next);
+			set_cell(next, dir);
+			return true;
+		} else {
+			cerr << "Bad state in " << __func__ << endl;
+		}
+	} // if
 	return false;
 }
 
+inline bool TreasureHunt::no_treasure() {
+	return (treasure.row == -1 && treasure.col == -1);
+}
+
 // Make sure is_valid_cell returns true before you call this function
+// Check whether current cell is indeed treasure
 inline bool TreasureHunt::is_treasure(Cell c, char dir) {
 	if (map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == '$') {
 		treasure.row = c.row;
 		treasure.col = c.col;
 		set_cell(treasure, dir);
+		if (print_verbose) {
+			cout << "party found treasure at " << treasure.row << "," <<
+				treasure.col << "\n";
+		}
 		clean_up();
 		return true;
 	}
@@ -213,8 +232,16 @@ inline bool TreasureHunt::is_treasure(Cell c, char dir) {
 
 void TreasureHunt::captain_do() {
 	if (sea.empty()) {
+		if (no_treasure()) {
+			if (print_verbose) {
+				cout << "Treasure hunt failed\n";
+			}
+			cout << "No treasure found after investigating " << water_length +
+				land_length << " locations.\n";
 		return;
+		}
 	} else {
+		land_length++;
 		Cell curr = Cell(-1, -1);
 
 		// get next cell and pop it from sail container
@@ -307,8 +334,12 @@ bool TreasureHunt::add_cell(Cell c, bool on_land, char dir) {
 
 void TreasureHunt::first_mate_do() {
 	if (land.empty()) {
+		if (print_verbose) {
+			cout << "party returned with no treasure\n";
+		}
 		return;
 	} else {
+		water_length++;
 		Cell curr = Cell(-1, -1);
 		if (mate_mode == 's') {
 			curr = land.back();

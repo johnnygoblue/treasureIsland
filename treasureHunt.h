@@ -60,6 +60,8 @@ class TreasureHunt {
 
 		inline bool is_treasure(Cell c, char dir);
 
+		inline bool no_treasure();
+
 		bool add_cell(Cell c, bool on_land, char dir);
 
 		inline void set_cell(Cell c, const char ch);
@@ -80,6 +82,8 @@ class TreasureHunt {
 
 		Cell treasure = Cell(-1, -1);
 
+		Cell start = Cell(-1, -1);
+
 		int map_size = 0;
 
 		//int iter = 0;
@@ -94,7 +98,7 @@ class TreasureHunt {
 
 		char mate_mode = 'q';
 
-		char path_mode = 'M';
+		char print_path_mode = 'M';
 
 		bool print_verbose = false;
 
