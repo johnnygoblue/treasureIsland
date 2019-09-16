@@ -64,8 +64,6 @@ class TreasureHunt {
 
 		inline bool is_treasure(Cell c, char dir);
 
-		inline bool no_treasure();
-
 		bool add_cell(Cell c, bool on_land, char dir);
 
 		inline void set_cell(Cell c, const char ch);
@@ -75,6 +73,8 @@ class TreasureHunt {
 		void first_mate_do();
 
 		void print_cell(Cell c);
+
+		void print_current_cell(Cell c, bool on_land);
 
 		void calculate_path_length();
 
@@ -113,6 +113,8 @@ class TreasureHunt {
 		bool print_verbose = true;
 
 		bool print_stats = true;
+
+		bool treasure_found = false;
 
 		//bool show_path = 'f'; // false by default
 

@@ -98,6 +98,15 @@ void TreasureHunt::print_cell(Cell c) {
 	cout << "(" << c.row << "," << c.col << ") ";
 }
 
+void TreasureHunt::print_current_cell(Cell c, bool on_land) {
+	if (on_land) {
+		cout << "[first-mate]";
+	} else {
+		cout << "[captain]";
+	}
+	cout << " current cell " << c.row << "," << c.col << "\n";
+}
+
 void TreasureHunt::print_start() {
 	cout << "Start location: ";
 	print_cell(sea.back());
@@ -227,10 +236,6 @@ inline bool TreasureHunt::is_ashore(Cell c, char dir) {
 	return false;
 }
 
-inline bool TreasureHunt::no_treasure() {
-	return (treasure.row == -1 && treasure.col == -1);
-}
-
 // Make sure is_valid_cell returns true before you call this function
 // Check whether current cell is indeed treasure
 inline bool TreasureHunt::is_treasure(Cell c, char dir) {
@@ -238,6 +243,8 @@ inline bool TreasureHunt::is_treasure(Cell c, char dir) {
 		treasure.row = c.row;
 		treasure.col = c.col;
 		set_cell(treasure, dir);
+		land_loc++;
+		treasure_found = true;
 		if (print_verbose) {
 			cout << "party found treasure at " << treasure.row << "," <<
 				treasure.col << "\n";
@@ -251,7 +258,7 @@ inline bool TreasureHunt::is_treasure(Cell c, char dir) {
 
 void TreasureHunt::captain_do() {
 	if (sea.empty()) {
-		if (no_treasure()) {
+		if (!treasure_found) {
 			if (print_verbose) {
 				cout << "Treasure hunt failed\n";
 			}
@@ -275,6 +282,7 @@ void TreasureHunt::captain_do() {
 			sea.pop_front();
 		}
 
+		print_current_cell(curr, false);
 		// explore surrounding cells
 		for (int i = 0; i < 4; ++i) {
 			switch (order[i]) {
@@ -321,6 +329,9 @@ void TreasureHunt::captain_do() {
 				default:
 					cerr << "Bad direction in " << __func__ << endl;
 			} // switch
+			if (treasure_found) {
+				break;
+			}
 		} // for
 		captain_do();
 	} // else
@@ -343,7 +354,7 @@ bool TreasureHunt::add_cell(Cell c, bool on_land, char dir) {
 		}
 		// if on sea and is valid sea cell
 		else if (!on_land) {
-			set_cell(c, dir);
+			set_cell(c, static_cast<char>(tolower(dir)));
 			sea.push_back(c);
 		}
 		// should never be here
@@ -370,6 +381,7 @@ void TreasureHunt::first_mate_do() {
 			curr = land.front();
 			land.pop_front();
 		}
+		print_current_cell(curr, true);
 		for (int i = 0; i < 4; ++i) {
 			switch (order[i]) {
 				case 'N':
@@ -402,16 +414,16 @@ void TreasureHunt::calculate_path_length() {
 	Cell temp = treasure;
 	while (!cell_equal(temp, start)) {
 		switch (get_cell(temp)) {
-			case 'N':
+			case 'N': case 'n':
 				temp = temp.south();
 				break;
-			case 'E':
+			case 'E': case 'e':
 				temp = temp.west();
 				break;
-			case 'S':
+			case 'S': case 's':
 				temp = temp.north();
 				break;
-			case 'W':
+			case 'W': case 'w':
 				temp = temp.east();
 				break;
 			default:
@@ -440,7 +452,7 @@ void TreasureHunt::print_hunt_stats() {
 	cout << "Water locations investigated: " << water_loc << "\n";
 	cout << "Land locations investigated: " << land_loc << "\n";
 	cout << "Went ashore: " << ashore << "\n";
-	if (!no_treasure()) {
+	if (treasure_found) {
 		cout << "Path length: " << path_length << "\n";
 		cout << "Treasure location: " << treasure.row << "," <<
 			treasure.col << "\n";
