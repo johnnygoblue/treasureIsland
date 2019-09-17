@@ -268,6 +268,7 @@ void TreasureHunt::captain_do() {
 		if (print_stats) {
 			print_hunt_stats();
 		}
+		print_path();
 		return;
 	} else {
 		water_loc++;
@@ -458,4 +459,34 @@ void TreasureHunt::print_hunt_stats() {
 			treasure.col << "\n";
 	}
 	cout << "--- STATS ---\n";
+}
+
+// Reuse the sea container to hold path
+void TreasureHunt::print_path() {
+	if (treasure_found) {
+		Cell temp;
+		bool flag = true;
+		while (!cell_equal(temp, start)) {
+			sea.push_back(temp);
+			temp = temp.prev();
+		}
+		sea.push_back(temp);
+
+		if (show_path == 'M') {
+
+		} else if (show_path == 'L') {
+			cout << "Sail:\n";
+			while (!sea.empty()) {
+				temp = sea.back();
+				if (flag && isupper(temp.get())) {
+					cout << "Search:\n";
+					flag = false;
+				}
+				temp.output();
+				sea.pop_back();
+			}
+		} else {
+
+		}
+	}
 }

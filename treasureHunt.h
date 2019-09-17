@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 #include <deque>
 #include <getopt.h>
@@ -6,6 +7,9 @@
 using std::vector;
 using std::deque;
 using std::string;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 class Cell {
 	public:
@@ -22,11 +26,41 @@ class Cell {
 		inline Cell west() {
 			return Cell(row, col-1);
 		};
+		// A cell needs to be validated before callling get()
+		char get(const TreasureHunt &h) const {
+			return h.map[static_cast<size_t>(row)][static_cast<size_t>(col)];
+		}
+		// Print cell in row,col format in single line
+		inline void output() {
+			cout << row << "," << col << "\n";
+		}
+		// Get the previous cell
+		Cell prev() {
+			switch(get()) {
+				case 'N': case 'n':
+					return south();
+					break;
+				case 'E': case 'e':
+					return west();
+					break;
+				case 'S': case 's':
+					return north();
+					break;
+				case 'W': case 'w':
+					return east();
+					break;
+				default:
+					cerr << "Unrecognized dir '" << get() << "' in " <<
+						__func__ << endl;
+			} // switch
+		}
 		int row;
 		int col;
 };
 
 class TreasureHunt {
+
+	friend char Cell::get(const TreasureHunt &);
 
 	public:
 
@@ -82,6 +116,8 @@ class TreasureHunt {
 
 		void print_hunt_stats();
 
+		void print_path();
+
 		vector<vector<char>> map;
 
 		deque<Cell> sea;
@@ -93,8 +129,6 @@ class TreasureHunt {
 		Cell start = Cell(-1, -1);
 
 		int map_size = 0;
-
-		//int iter = 0;
 
 		char order[4] = {'N', 'E', 'S', 'W'};
 
@@ -110,12 +144,12 @@ class TreasureHunt {
 
 		char mate_mode = 'q';
 
+		char show_path = 'f'; // false by default
+
 		bool print_verbose = true;
 
 		bool print_stats = true;
 
 		bool treasure_found = false;
-
-		//bool show_path = 'f'; // false by default
 
 };
