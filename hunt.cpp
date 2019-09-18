@@ -7,7 +7,6 @@ int main(int argc, char **argv) {
 		hunt.get_options(argc, argv);
 		hunt.read_data();
 		hunt.hunt();
-		//hunt.print_treasure();
 	}
 	catch(std::runtime_error &e) {
 		std::cerr << e.what() << std::endl;

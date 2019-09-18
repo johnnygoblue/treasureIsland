@@ -70,8 +70,6 @@ class TreasureHunt {
 
 		void print_start();
 
-		void print_treasure();
-
 		void get_options(int argc, char** argv);
 
 		void hunt();

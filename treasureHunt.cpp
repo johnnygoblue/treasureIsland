@@ -76,7 +76,7 @@ void TreasureHunt::get_options(int argc, char **argv) {
 								{ "stats", no_argument, nullptr, 's'},
 								{ "help", no_argument, nullptr, 'h'},
 								{ nullptr, 0, nullptr, '\0'}};
-    while ((option = getopt_long(argc, argv, "c:f:p:s:vsh", longOpts, &option_index)) != -1) {
+    while ((option = getopt_long(argc, argv, "c:f:p:o:vsh", longOpts, &option_index)) != -1) {
 		switch (option) {
 			case 'c':
 				if (strncmp(optarg, st.c_str(), st.size()) == 0) {
@@ -223,16 +223,6 @@ void TreasureHunt::print_land() {
 		land_copy.pop_front();
 	}
 	cout << "\n";
-}
-
-void TreasureHunt::print_treasure() {
-	if (!treasure_found) {
-		cout << "Treasure not found!\n";
-	} else {
-		cout << "Treasure found at ";
-		print_cell(treasure);
-		cout << "with path length " << path_length << ".\n";
-	}
 }
 
 bool TreasureHunt::is_valid_cell(Cell c, bool on_land) {
