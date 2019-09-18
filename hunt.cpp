@@ -1,13 +1,13 @@
 #include "treasureHunt.h"
 #include <iostream>
 
-int main() {
+int main(int argc, char **argv) {
 	try {
 		TreasureHunt hunt;
+		hunt.get_options(argc, argv);
 		hunt.read_data();
-		hunt.print_map();
 		hunt.hunt();
-		//hunt.print_treasure();
+		hunt.print_treasure();
 	}
 	catch(std::runtime_error &e) {
 		std::cerr << e.what() << std::endl;

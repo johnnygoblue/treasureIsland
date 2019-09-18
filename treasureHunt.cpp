@@ -1,6 +1,7 @@
 #include "treasureHunt.h"
 
 #include <iostream>
+#include <getopt.h>
 #include <algorithm>
 #include <cctype>
 
@@ -60,8 +61,100 @@ void TreasureHunt::read_data() {
 	}
 };
 
-void TreasureHunt::get_options(int, char**) {
+void TreasureHunt::get_options(int argc, char **argv) {
+	string st = "stack";
+	string q = "queue";
+	int option_index = 0, option = 0;
+	opterr = false;
+	int dir_count[4] = {-1, -1, -1, -1}; // count N, E, S, W
 
+	struct option longOpts[] = {{ "captain", required_argument, nullptr, 'c' },
+								{ "first-mate", required_argument, nullptr, 'f'},
+								{ "hunter-order", required_argument, nullptr, 'o'},
+								{ "show-path", required_argument, nullptr, 'p'},
+								{ "verbose", no_argument, nullptr, 'v'},
+								{ "stats", no_argument, nullptr, 's'},
+								{ "help", no_argument, nullptr, 'h'},
+								{ nullptr, 0, nullptr, '\0'}};
+    while ((option = getopt_long(argc, argv, "c:f:p:s:vsh", longOpts, &option_index)) != -1) {
+		switch (option) {
+			case 'c':
+				if (strncmp(optarg, st.c_str(), st.size()) == 0) {
+					capt_mode = 's';
+				} else if (strncmp(optarg, q.c_str(), q.size()) == 0) {
+					capt_mode = 'q';
+				} else {
+					cerr << "Invalid input argument for captain mode" << endl;
+					exit(1);
+				}
+				break;
+			case 'f':
+				if (strncmp(optarg, st.c_str(), st.size())) {
+					mate_mode = 's';
+				} else if (strncmp(optarg, q.c_str(), q.size())) {
+					mate_mode = 'q';
+				} else {
+					cerr << "Invalid input argument for first-mate" << endl;
+					exit(1);
+				}
+				break;
+			case 'o':
+				if (optarg[4] != '\0') {
+					cerr << "Wrong number of directions in hunt-order" << endl;
+					exit(1);
+				} //if
+				for (int i = 0; i < 4; ++i) {
+					switch (optarg[i]) {
+						case 'n':
+							dir_count[0]++;
+							break;
+						case 'e':
+							dir_count[1]++;
+							break;
+						case 's':
+							dir_count[2]++;
+							break;
+						case 'w':
+							dir_count[3]++;
+							break;
+						default:
+							cerr << "Uncognized direction in hunt order" << endl;
+							exit(1);
+					} // switch
+				} // for
+				for (int i = 0; i < 4; ++i) {
+					if (dir_count[i]) {
+						cerr << "Direction mismatch in hunt order" << endl;
+						exit(1);
+					} // if
+					order[i] = optarg[i]-32; // lower to upper
+				} // for
+				break;
+			case 'p':
+				if (optarg[0] == 'M') {
+					show_path = 'M';
+				} else if (optarg[0] == 'L') {
+					show_path = 'L';
+				} else {
+					cerr << "Invalid show path argument" << endl;
+					exit(1);
+				}
+				break;
+			case 'v':
+				print_verbose = true;
+				break;
+			case 's':
+				print_stats = true;
+				break;
+			case 'h':
+				cout << "EECS 281 Project 1 Treasure Hunt\n";
+				cout << "Please refer to specs to simulate the game!\n";
+				exit(0);
+			default:
+				cerr << "Unrecognized option '" << option << "'" << endl;
+				exit(1);
+		} // switch
+	} // while
 };
 
 void TreasureHunt::hunt() {
@@ -95,7 +188,7 @@ void TreasureHunt::print_map() {
 }
 
 void TreasureHunt::print_cell(Cell c) {
-	cout << "(" << c.row << "," << c.col << ") ";
+	cout << "" << c.row << "," << c.col << " ";
 }
 
 void TreasureHunt::print_current_cell(Cell c, bool on_land) {
@@ -133,11 +226,12 @@ void TreasureHunt::print_land() {
 }
 
 void TreasureHunt::print_treasure() {
-	if (treasure.row == -1 && treasure.col == -1) {
+	if (!treasure_found) {
 		cout << "Treasure not found!\n";
 	} else {
 		cout << "Treasure found at ";
 		print_cell(treasure);
+		cout << "with path length " << path_length << ".\n";
 	}
 }
 
@@ -247,7 +341,7 @@ inline bool TreasureHunt::is_treasure(Cell c, char dir) {
 		treasure_found = true;
 		if (print_verbose) {
 			cout << "party found treasure at " << treasure.row << "," <<
-				treasure.col << "\n";
+				treasure.col << ".\n";
 		}
 		calculate_path_length();
 		clean_up();
@@ -283,7 +377,7 @@ void TreasureHunt::captain_do() {
 			sea.pop_front();
 		}
 
-		print_current_cell(curr, false);
+		//print_current_cell(curr, false);
 		// explore surrounding cells
 		for (int i = 0; i < 4; ++i) {
 			switch (order[i]) {
@@ -369,7 +463,7 @@ bool TreasureHunt::add_cell(Cell c, bool on_land, char dir) {
 void TreasureHunt::first_mate_do() {
 	if (land.empty()) {
 		if (print_verbose) {
-			cout << "party returned with no treasure\n";
+			cout << "party returned with no treasure.\n";
 		}
 		return;
 	} else {
@@ -382,7 +476,7 @@ void TreasureHunt::first_mate_do() {
 			curr = land.front();
 			land.pop_front();
 		}
-		print_current_cell(curr, true);
+		//print_current_cell(curr, true);
 		for (int i = 0; i < 4; ++i) {
 			switch (order[i]) {
 				case 'N':
@@ -464,12 +558,12 @@ void TreasureHunt::print_hunt_stats() {
 // Reuse the sea container to hold path
 void TreasureHunt::print_path() {
 	if (treasure_found) {
-		Cell temp;
+		Cell temp = treasure;
 		bool flag = true;
 		while (!cell_equal(temp, start)) {
 			sea.push_back(temp);
-			temp = temp.prev();
-		}
+			temp = temp.prev(get_cell(temp));
+		} // while
 		sea.push_back(temp);
 
 		if (show_path == 'M') {
@@ -478,7 +572,7 @@ void TreasureHunt::print_path() {
 			cout << "Sail:\n";
 			while (!sea.empty()) {
 				temp = sea.back();
-				if (flag && isupper(temp.get())) {
+				if (flag && isupper(get_cell(temp))) {
 					cout << "Search:\n";
 					flag = false;
 				}
@@ -488,5 +582,5 @@ void TreasureHunt::print_path() {
 		} else {
 
 		}
-	}
+	} // treasure_found
 }

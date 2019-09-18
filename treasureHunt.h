@@ -26,41 +26,37 @@ class Cell {
 		inline Cell west() {
 			return Cell(row, col-1);
 		};
-		// A cell needs to be validated before callling get()
-		char get(const TreasureHunt &h) const {
-			return h.map[static_cast<size_t>(row)][static_cast<size_t>(col)];
-		}
 		// Print cell in row,col format in single line
 		inline void output() {
 			cout << row << "," << col << "\n";
 		}
 		// Get the previous cell
-		Cell prev() {
-			switch(get()) {
+		Cell prev(char ch) {
+			Cell ret = Cell(-1, -1);
+			switch(ch) {
 				case 'N': case 'n':
-					return south();
+					ret = south();
 					break;
 				case 'E': case 'e':
-					return west();
+					ret = west();
 					break;
 				case 'S': case 's':
-					return north();
+					ret = north();
 					break;
 				case 'W': case 'w':
-					return east();
+					ret = east();
 					break;
 				default:
-					cerr << "Unrecognized dir '" << get() << "' in " <<
+					cerr << "Unrecognized dir '" << ch << "' in " <<
 						__func__ << endl;
 			} // switch
+			return ret;
 		}
 		int row;
 		int col;
 };
 
 class TreasureHunt {
-
-	friend char Cell::get(const TreasureHunt &);
 
 	public:
 
@@ -144,7 +140,7 @@ class TreasureHunt {
 
 		char mate_mode = 'q';
 
-		char show_path = 'f'; // false by default
+		char show_path = '\0'; // false by default
 
 		bool print_verbose = true;
 
