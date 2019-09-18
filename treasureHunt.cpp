@@ -1,3 +1,5 @@
+// IDENTIFIER = 40FB54C86566B9DDEAB902CC80E8CE85C1C62AAD
+
 #include "treasureHunt.h"
 
 #include <iostream>
@@ -521,8 +523,6 @@ void TreasureHunt::calculate_path_length() {
 
 // clean up sea and land container after treasure is found
 void TreasureHunt::clean_up() {
-	cout << "Treasure found at " << treasure.row << "," << treasure.col <<
-		" with path length " << path_length << ".\n";
 	while (!land.empty()) {
 		land.pop_back();
 	}
@@ -572,5 +572,7 @@ void TreasureHunt::print_path() {
 		} else {
 
 		}
+		cout << "Treasure found at " << treasure.row << "," << treasure.col <<
+			" with path length " << path_length << ".";
 	} // treasure_found
 }
