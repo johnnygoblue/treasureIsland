@@ -21,20 +21,22 @@ void TreasureHunt::read_data() {
     bool is_map = false;
 
 	while (getline(cin, junk, '\n')) {
-		if (junk[0] == '#' && comment) {
+		if (junk[0] == '#' && comment) { // continue if is comment line
 			continue;
-		} else if (junk[0] == 'M' || junk[0] == 'L') {
+		} else if (junk[0] == 'M' || junk[0] == 'L') { // determine input mode
 			if (junk[0] == 'M') {
 				is_map = true;
 			}
 			comment = false;
-		} else if (is_number(junk)) {
+		} else if (is_number(junk)) { // if line is map size
 			map_size = stoi(junk);
 			map.resize(static_cast<size_t>(map_size));
 			for (int i = 0; i < map_size; ++i) {
 				map[static_cast<size_t>(i)].resize(static_cast<size_t> \
 						(map_size), '.');
 			}
+		} else if (!comment && junk.empty()) { // if empty line
+			continue;
 		} else { // reading map content
 			if (is_map) {
 				for (int i = 0; i < map_size; ++i) {
@@ -61,14 +63,17 @@ void TreasureHunt::read_data() {
 			}
 		}
 	}
-};
+}
 
 void TreasureHunt::get_options(int argc, char **argv) {
-	string st = "stack";
-	string q = "queue";
+	string stack = "STACK";
+	string st = "S";
+	string queue = "QUEUE";
+	string q = "Q";
 	int option_index = 0, option = 0;
 	opterr = false;
 	int dir_count[4] = {-1, -1, -1, -1}; // count N, E, S, W
+	int cnt_show_path = 0;
 
 	struct option longOpts[] = {{ "captain", required_argument, nullptr, 'c' },
 								{ "first-mate", required_argument, nullptr, 'f'},
@@ -81,9 +86,11 @@ void TreasureHunt::get_options(int argc, char **argv) {
     while ((option = getopt_long(argc, argv, "c:f:p:o:vsh", longOpts, &option_index)) != -1) {
 		switch (option) {
 			case 'c':
-				if (strncmp(optarg, st.c_str(), st.size()) == 0) {
+				if (strcmp(optarg, st.c_str()) == 0 ||
+					strcmp(optarg, stack.c_str()) == 0) {
 					capt_mode = 's';
-				} else if (strncmp(optarg, q.c_str(), q.size()) == 0) {
+				} else if (strcmp(optarg, q.c_str()) == 0 ||
+					strcmp(optarg, queue.c_str()) == 0) {
 					capt_mode = 'q';
 				} else {
 					cerr << "Invalid input argument for captain mode" << endl;
@@ -91,9 +98,11 @@ void TreasureHunt::get_options(int argc, char **argv) {
 				}
 				break;
 			case 'f':
-				if (strncmp(optarg, st.c_str(), st.size())) {
+				if (strcmp(optarg, st.c_str()) == 0 ||
+					strcmp(optarg, stack.c_str()) == 0) {
 					mate_mode = 's';
-				} else if (strncmp(optarg, q.c_str(), q.size())) {
+				} else if (strcmp(optarg, q.c_str()) == 0 ||
+						strcmp(optarg, queue.c_str()) == 0) {
 					mate_mode = 'q';
 				} else {
 					cerr << "Invalid input argument for first-mate" << endl;
@@ -129,13 +138,19 @@ void TreasureHunt::get_options(int argc, char **argv) {
 						cerr << "Direction mismatch in hunt order" << endl;
 						exit(1);
 					} // if
-					order[i] = optarg[i]-32; // lower to upper
+					order[i] = (char) (optarg[i]-32); // lower to upper
 				} // for
 				break;
 			case 'p':
+				if (cnt_show_path >= 1) {
+					cerr << "Show path can only be set once" << endl;
+					exit(1);
+				}
 				if (optarg[0] == 'M') {
+					cnt_show_path++;
 					show_path = 'M';
 				} else if (optarg[0] == 'L') {
+					cnt_show_path++;
 					show_path = 'L';
 				} else {
 					cerr << "Invalid show path argument" << endl;
@@ -157,7 +172,7 @@ void TreasureHunt::get_options(int argc, char **argv) {
 				exit(1);
 		} // switch
 	} // while
-};
+}
 
 void TreasureHunt::hunt() {
 	if (print_verbose) {
@@ -165,7 +180,7 @@ void TreasureHunt::hunt() {
 			start.col << "\n";
 	}
 	captain_do();
-};
+}
 
 // Cell is valid cell before you call this function
 inline char TreasureHunt::get_cell(Cell c) {

@@ -5,7 +5,7 @@
 #include <vector>
 #include <deque>
 #include <getopt.h>
-#include <string>
+#include <string.h>
 
 using std::vector;
 using std::deque;
@@ -62,6 +62,8 @@ class Cell {
 class TreasureHunt {
 
 	public:
+
+		TreasureHunt() {}
 
 		void read_data();
 
@@ -141,11 +143,11 @@ class TreasureHunt {
 
 		char mate_mode = 'q';
 
-		char show_path = '\0'; // false by default
+		char show_path = 'f'; // false by default
 
-		bool print_verbose = true;
+		bool print_verbose = false;
 
-		bool print_stats = true;
+		bool print_stats = false;
 
 		bool treasure_found = false;
 
