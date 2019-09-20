@@ -83,6 +83,8 @@ class TreasureHunt {
 
 		inline char get_cell(Cell c);
 
+		char set_curr_path(char prev, char curr);
+
 		bool is_number(const string &);
 
 		inline bool is_land(Cell c);
@@ -100,6 +102,8 @@ class TreasureHunt {
 		bool add_cell(Cell c, bool on_land, char dir);
 
 		inline void set_cell(Cell c, const char ch);
+
+		void reset_cell(Cell c);
 
 		void captain_do();
 

@@ -66,10 +66,8 @@ void TreasureHunt::read_data() {
 }
 
 void TreasureHunt::get_options(int argc, char **argv) {
-	string stack = "STACK";
-	string st = "S";
-	string queue = "QUEUE";
-	string q = "Q";
+	string stack = "stack";
+	string queue = "queue";
 	int option_index = 0, option = 0;
 	opterr = false;
 	int dir_count[4] = {-1, -1, -1, -1}; // count N, E, S, W
@@ -86,11 +84,9 @@ void TreasureHunt::get_options(int argc, char **argv) {
     while ((option = getopt_long(argc, argv, "c:f:p:o:vsh", longOpts, &option_index)) != -1) {
 		switch (option) {
 			case 'c':
-				if (strcmp(optarg, st.c_str()) == 0 ||
-					strcmp(optarg, stack.c_str()) == 0) {
+				if (strcmp(optarg, stack.c_str()) == 0) {
 					capt_mode = 's';
-				} else if (strcmp(optarg, q.c_str()) == 0 ||
-					strcmp(optarg, queue.c_str()) == 0) {
+				} else if (strcmp(optarg, queue.c_str()) == 0) {
 					capt_mode = 'q';
 				} else {
 					cerr << "Invalid input argument for captain mode" << endl;
@@ -98,11 +94,9 @@ void TreasureHunt::get_options(int argc, char **argv) {
 				}
 				break;
 			case 'f':
-				if (strcmp(optarg, st.c_str()) == 0 ||
-					strcmp(optarg, stack.c_str()) == 0) {
+				if (strcmp(optarg, stack.c_str()) == 0) {
 					mate_mode = 's';
-				} else if (strcmp(optarg, q.c_str()) == 0 ||
-						strcmp(optarg, queue.c_str()) == 0) {
+				} else if (strcmp(optarg, queue.c_str()) == 0) {
 					mate_mode = 'q';
 				} else {
 					cerr << "Invalid input argument for first-mate" << endl;
@@ -243,24 +237,26 @@ void TreasureHunt::print_land() {
 }
 
 bool TreasureHunt::is_valid_cell(Cell c, bool on_land) {
+	char ch;
 	// check if out of bounds
 	if (!is_in_bound(c)) {
 		return false;
 	}
+	ch = static_cast<char>(tolower(get_cell(c)));
 	// check if terrain unpassable
-	if (map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == '#') {
+	if (ch == '#') {
+		return false;
+	}
+	// check if is start location
+	if (cell_equal(c, start)) {
 		return false;
 	}
 	// check if cell is already explored
-	if (tolower(map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)]) == 'n' ||
-		tolower(map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)]) == 'e' ||
-		tolower(map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)]) == 's' ||
-		tolower(map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)]) == 'w') {
+	if (ch == 'n' || ch == 'e' || ch == 's' || ch == 'w') {
 		return false;
 	}
 	// if on-land, check if ocean cell
-	if (on_land && map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] \
-			== '.') {
+	if (on_land && ch == '.') {
 		return false;
 	}
 	return true;
@@ -284,11 +280,29 @@ inline bool TreasureHunt::is_in_bound(Cell c) {
 	return true;
 }
 
+// Set the content of cell c to given char ch
 inline void TreasureHunt::set_cell(Cell c, const char ch) {
 	if (!is_in_bound(c)) {
 		cerr << "Cell out of bound in " << __func__ << endl;
 	}
 	map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] = ch;
+}
+
+// Reset cell to either land or sea
+inline void TreasureHunt::reset_cell(Cell c) {
+	char ch;
+	if (!is_in_bound(c)) {
+		cerr << "Cell out of bound in " << __func__ << endl;
+	}
+	ch = get_cell(c);
+	if (islower(ch)) {
+		set_cell(c, '.');
+	} else if (isupper(ch)) {
+		set_cell(c, 'o');
+	} else {
+		cerr << "Unrecognized cell value '" << ch << "' in" <<
+			__func__ << endl;
+	}
 }
 
 // This function should only be called when the Cell c is a sea cell
@@ -341,11 +355,11 @@ inline bool TreasureHunt::is_ashore(Cell c, char dir) {
 // Check whether current cell is indeed treasure
 inline bool TreasureHunt::is_treasure(Cell c, char dir) {
 	if (map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == '$') {
+		treasure_found = true;
 		treasure.row = c.row;
 		treasure.col = c.col;
 		set_cell(treasure, dir);
 		land_loc++;
-		treasure_found = true;
 		if (print_verbose) {
 			cout << "party found treasure at " << treasure.row << "," <<
 				treasure.col << ".\n";
@@ -538,10 +552,19 @@ void TreasureHunt::calculate_path_length() {
 
 // clean up sea and land container after treasure is found
 void TreasureHunt::clean_up() {
+	Cell c = Cell(-1,-1);
 	while (!land.empty()) {
+		c = land.back();
+		if (!cell_equal(c, treasure)) {
+			reset_cell(c);
+		}
 		land.pop_back();
 	}
 	while (!sea.empty()) {
+		c = sea.back();
+		if (!cell_equal(c, start)) {
+			reset_cell(c);
+		}
 		sea.pop_back();
 	}
 }
@@ -560,6 +583,39 @@ void TreasureHunt::print_hunt_stats() {
 	cout << "--- STATS ---\n";
 }
 
+// Given current and previous direction return the current path
+// If prev is '$' it means we are currently at the treasure loc
+// If curr is '@' it means we are currently at the starting loc
+char TreasureHunt::set_curr_path(char prev, char curr)
+{
+	prev = static_cast<char>(toupper(prev));
+	curr = static_cast<char>(toupper(curr));
+	if (curr == '@') { // start loc
+		return '@';
+	} else if (curr == 'N' || curr == 'S') {
+		if (prev == 'N' || prev == 'S') {
+			return '|';
+		} else if (prev == 'E' || prev == 'W') {
+			return '+';
+		} else {
+			cerr << "Bad prev direction '" << prev << "' in " << __func__ << endl;
+			exit(1);
+		}
+	} else if (curr == 'E' || curr == 'W') {
+		if (prev == 'N' || prev == 'S') {
+			return '+';
+		} else if (prev == 'E' || prev == 'W') {
+			return '-';
+		} else {
+			cerr << "Bad prev direction '" << prev << "' in " << __func__ << endl;
+			exit(1);
+		}
+	} else {
+		cerr << "Bad curr direction '" << curr << "' in " << __func__ << endl;
+		exit(1);
+	}
+}
+
 // Reuse the sea container to hold path
 void TreasureHunt::print_path() {
 	if (treasure_found) {
@@ -572,6 +628,24 @@ void TreasureHunt::print_path() {
 		sea.push_back(temp);
 
 		if (show_path == 'M') {
+			char curr = '\0', prev = '\0';
+
+			while (!sea.empty()) {
+				temp = sea.front();
+
+				if (cell_equal(temp, treasure)) {
+					curr = get_cell(treasure);
+					set_cell(temp, 'X');
+				} else {
+					curr = get_cell(temp);
+					// assign path to current cell
+					set_cell(temp, set_curr_path(prev, curr));
+				}
+				sea.pop_front();
+				prev = curr;
+			} // while
+
+			print_map();
 
 		} else if (show_path == 'L') {
 			cout << "Sail:\n";
@@ -584,8 +658,7 @@ void TreasureHunt::print_path() {
 				temp.output();
 				sea.pop_back();
 			}
-		} else {
-
+		} else { // does nothing
 		}
 		cout << "Treasure found at " << treasure.row << "," << treasure.col <<
 			" with path length " << path_length << ".";
