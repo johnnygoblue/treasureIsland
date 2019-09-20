@@ -190,9 +190,21 @@ bool TreasureHunt::is_number(const string &s) {
 }
 
 void TreasureHunt::print_map() {
+	char ch;
 	for (int i = 0; i < map_size; ++i) {
 		for (int j = 0; j < map_size; ++j) {
-			cout << map[static_cast<size_t>(i)][static_cast<size_t>(j)];
+			ch = map[static_cast<size_t>(i)][static_cast<size_t>(j)];
+			if (ch == '-' || ch == '|' || ch == '+' || ch == 'X' || ch == '@' ||
+					ch == '.' || ch == 'o') {
+				cout << ch;
+			} else if (isupper(ch)) {
+				cout << 'o';
+			} else if (islower(ch)){
+				cout << '.';
+			} else {
+				cerr << "Illegal char '" << ch << "' in " << __func__ << endl;
+				exit(1);
+			}
 		}
 		cout << "\n";
 	}
