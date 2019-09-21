@@ -29,8 +29,6 @@ void TreasureHunt::read_data() {
 		} else if (junk[0] == 'M' || junk[0] == 'L') { // determine input mode
 			if (junk[0] == 'M') {
 				is_map = true;
-			} else {
-				ctt.reserve(3);
 			}
 			comment = false;
 		} else if (is_number(junk)) { // if line is map size
@@ -58,10 +56,12 @@ void TreasureHunt::read_data() {
 				++row;
 				col = 0;
 			} else { // input is list format
-				std::istringstream iss(junk);
-				junk.clear();
-				while (iss >> junk) {
-					ctt.push_back(junk);
+				std::stringstream iss(junk);
+				string temp;
+				ctt.resize(3);
+				for (int i = 0; i < 3; ++i) {
+					iss >> temp;
+					ctt[static_cast<size_t>(i)] = temp;
 				}
 				row = (stoi(ctt[0]));
 				col = (stoi(ctt[1]));
@@ -75,6 +75,16 @@ void TreasureHunt::read_data() {
 			}
 		}
 	}
+
+	// DELETE
+	cout << "\n\n";
+	for (size_t i = 0; i < (size_t)map_size; ++i) {
+		for (size_t j = 0; j < (size_t)map_size; ++j) {
+			cout << map[i][j];
+		}
+		cout << "\n";
+	}
+
 }
 
 void TreasureHunt::get_options(int argc, char **argv) {
