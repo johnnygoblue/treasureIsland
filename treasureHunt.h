@@ -69,12 +69,6 @@ class TreasureHunt {
 
 		void print_map();
 
-		void print_sea();
-
-		void print_land();
-
-		void print_start();
-
 		void get_options(int argc, char** argv);
 
 		void hunt();
@@ -110,8 +104,6 @@ class TreasureHunt {
 		void first_mate_do();
 
 		void print_cell(Cell c);
-
-		void print_current_cell(Cell c, bool on_land);
 
 		void calculate_path_length();
 

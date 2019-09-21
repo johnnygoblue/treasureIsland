@@ -226,40 +226,6 @@ void TreasureHunt::print_cell(Cell c) {
 	cout << "" << c.row << "," << c.col << " ";
 }
 
-void TreasureHunt::print_current_cell(Cell c, bool on_land) {
-	if (on_land) {
-		cout << "[first-mate]";
-	} else {
-		cout << "[captain]";
-	}
-	cout << " current cell " << c.row << "," << c.col << "\n";
-}
-
-void TreasureHunt::print_start() {
-	cout << "Start location: ";
-	print_cell(sea.back());
-}
-
-void TreasureHunt::print_sea() {
-	cout << "sea: ";
-	deque<Cell> sea_copy = sea;
-	while (!sea_copy.empty()) {
-		print_cell(sea_copy.back());
-		sea_copy.pop_back();
-	}
-	cout << "\n";
-}
-
-void TreasureHunt::print_land() {
-	cout << "land: ";
-	deque<Cell> land_copy = land;
-	while (!land_copy.empty()) {
-		print_cell(land_copy.front());
-		land_copy.pop_front();
-	}
-	cout << "\n";
-}
-
 bool TreasureHunt::is_valid_cell(Cell c, bool on_land) {
 	char ch;
 	// check if out of bounds
@@ -422,7 +388,6 @@ void TreasureHunt::captain_do() {
 			sea.pop_front();
 		}
 
-		//print_current_cell(curr, false);
 		// explore surrounding cells
 		for (int i = 0; i < 4; ++i) {
 			switch (order[i]) {
@@ -521,7 +486,6 @@ void TreasureHunt::first_mate_do() {
 			curr = land.front();
 			land.pop_front();
 		}
-		//print_current_cell(curr, true);
 		for (int i = 0; i < 4; ++i) {
 			switch (order[i]) {
 				case 'N':
