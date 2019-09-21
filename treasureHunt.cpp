@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <getopt.h>
+#include <sstream>
 #include <algorithm>
-#include <boost/algorithm/string.hpp>
 #include <cctype>
 
 using std::cin;
@@ -30,7 +30,7 @@ void TreasureHunt::read_data() {
 			if (junk[0] == 'M') {
 				is_map = true;
 			} else {
-				ctt.resize(3);
+				ctt.reserve(3);
 			}
 			comment = false;
 		} else if (is_number(junk)) { // if line is map size
@@ -58,7 +58,11 @@ void TreasureHunt::read_data() {
 				++row;
 				col = 0;
 			} else { // input is list format
-				boost::split(ctt, junk, [](char c){return c == ' ';});
+				std::istringstream iss(junk);
+				junk.clear();
+				while (iss >> junk) {
+					ctt.push_back(junk);
+				}
 				row = (stoi(ctt[0]));
 				col = (stoi(ctt[1]));
 				ch = ctt[2][0];
