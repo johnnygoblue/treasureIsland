@@ -1,0 +1,8 @@
+# Test case 1: 5x5 with one island
+M
+5
+@..#.
+##.#.
+...#.
+.##$.
+....o

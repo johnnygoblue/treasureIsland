@@ -1,0 +1,4 @@
+# Test case 9: 10x10 with no treasure
+L
+10
+4 4 @

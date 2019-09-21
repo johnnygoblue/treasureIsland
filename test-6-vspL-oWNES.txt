@@ -1,0 +1,7 @@
+# Test 6:  4x4 with big island
+M
+4
+....
+.o@o
+.o.o
+.o$o

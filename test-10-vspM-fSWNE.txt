@@ -1,0 +1,7 @@
+# Test case 10: 4x4 map with one big island
+M
+4
+$ooo
+oooo
+o@oo
+oooo

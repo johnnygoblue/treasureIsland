@@ -1,0 +1,5 @@
+# Test 4: 2x2 map with one island
+M
+2
+@$
+oo

@@ -1,0 +1,6 @@
+# Test 5: 3x3 with no way out
+M
+3
+$o.
+o.o
+.o.

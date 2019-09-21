@@ -1,0 +1,6 @@
+# Test 8: 3x3 with 1 island
+M
+3
+...
+.@.
+$..

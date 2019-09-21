@@ -1,0 +1,7 @@
+# Tets case 11: 4x4 with 3 islands
+M
+4
+o..@
+#.oo
+$.o.
+#...
