@@ -135,7 +135,7 @@ class TreasureHunt {
 
 		char order[4] = {'N', 'E', 'S', 'W'};
 
-		unsigned short path_length;
+		unsigned short path_length = 0;
 
 		unsigned short water_loc = 0;
 

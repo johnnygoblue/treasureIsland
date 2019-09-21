@@ -673,6 +673,6 @@ void TreasureHunt::print_path() {
 		} else { // does nothing
 		}
 		cout << "Treasure found at " << treasure.row << "," << treasure.col <<
-			" with path length " << path_length << ".";
+			" with path length " << path_length << ".\n";
 	} // treasure_found
 }
