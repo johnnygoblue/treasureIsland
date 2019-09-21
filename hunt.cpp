@@ -5,6 +5,8 @@
 #include <iostream>
 
 int main(int argc, char **argv) {
+	std::ios_base::sync_with_stdio(false);
+
 	try {
 		TreasureHunt hunt;
 		hunt.get_options(argc, argv);

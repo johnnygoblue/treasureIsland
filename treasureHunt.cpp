@@ -5,6 +5,7 @@
 #include <iostream>
 #include <getopt.h>
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 #include <cctype>
 
 using std::cin;
@@ -15,10 +16,12 @@ using std::getline;
 using std::stoi;
 
 void TreasureHunt::read_data() {
+	vector<string> ctt;
 	string junk;
 	int row = 0, col = 0;
 	bool comment = true;
     bool is_map = false;
+	char ch;
 
 	while (getline(cin, junk, '\n')) {
 		if (junk[0] == '#' && comment) { // continue if is comment line
@@ -26,6 +29,8 @@ void TreasureHunt::read_data() {
 		} else if (junk[0] == 'M' || junk[0] == 'L') { // determine input mode
 			if (junk[0] == 'M') {
 				is_map = true;
+			} else {
+				ctt.resize(3);
 			}
 			comment = false;
 		} else if (is_number(junk)) { // if line is map size
@@ -35,7 +40,7 @@ void TreasureHunt::read_data() {
 				map[static_cast<size_t>(i)].resize(static_cast<size_t> \
 						(map_size), '.');
 			}
-		} else if (!comment && junk.empty()) { // if empty line
+		} else if (junk.empty()) { // if empty line
 			continue;
 		} else { // reading map content
 			if (is_map) { // input is map format
@@ -53,11 +58,14 @@ void TreasureHunt::read_data() {
 				++row;
 				col = 0;
 			} else { // input is list format
-				map[static_cast<size_t>(junk[0]-'0')][static_cast<size_t> \
-					(junk[2]-'0')] = junk[4];
-				if (junk[4] == '@') {
-					start.row = junk[0]-'0';
-					start.col = junk[2]-'0';
+				boost::split(ctt, junk, [](char c){return c == ' ';});
+				row = (stoi(ctt[0]));
+				col = (stoi(ctt[1]));
+				ch = ctt[2][0];
+				map[static_cast<size_t>(row)][static_cast<size_t>(col)] = ch;
+				if (ch == '@') {
+					start.row = row;
+					start.col = col;
 					sea.push_back(start);
 				}
 			}
