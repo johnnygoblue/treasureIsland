@@ -207,7 +207,7 @@ void TreasureHunt::print_map() {
 		for (int j = 0; j < map_size; ++j) {
 			ch = map[static_cast<size_t>(i)][static_cast<size_t>(j)];
 			if (ch == '-' || ch == '|' || ch == '+' || ch == 'X' || ch == '@' ||
-					ch == '.' || ch == 'o') {
+					ch == '.' || ch == 'o' || ch == '#') {
 				cout << ch;
 			} else if (isupper(ch)) {
 				cout << 'o';
