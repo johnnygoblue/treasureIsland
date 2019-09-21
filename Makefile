@@ -68,11 +68,11 @@ FULL_SUBMITFILE = fullsubmit.tar.gz
 PERF_FILE = perf.data*
 
 #Default Flags (we prefer -std=c++17 but Mac/Xcode/Clang doesn't support)
-CXXFLAGS = -std=c++1z -Wconversion -Wall -Werror -Wextra -pedantic 
+CXXFLAGS = -std=c++1z -Wconversion -Wall -Werror -Wextra -pedantic
 
 # make release - will compile "all" with $(CXXFLAGS) and the -O3 flag
 #                also defines NDEBUG so that asserts will not check
-release: CXXFLAGS += -O3 -DNDEBUG
+release: CXXFLAGS += -g3 -DNDEBUG
 release: $(EXECUTABLE)
 
 # make debug - will compile sources with $(CXXFLAGS) and the -g3 flag
@@ -171,7 +171,7 @@ sync2caen:
       -av \
       --delete \
       --exclude '.git*' \
-      --exclude '.vs*' \  
+      --exclude '.vs*' \
 	  --filter=":- .gitignore" \
       ./ \
       "login.engin.umich.edu:'${REMOTE_PATH}'/"
