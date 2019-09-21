@@ -75,16 +75,6 @@ void TreasureHunt::read_data() {
 			}
 		}
 	}
-
-	// DELETE
-	cout << "\n\n";
-	for (size_t i = 0; i < (size_t)map_size; ++i) {
-		for (size_t j = 0; j < (size_t)map_size; ++j) {
-			cout << map[i][j];
-		}
-		cout << "\n";
-	}
-
 }
 
 void TreasureHunt::get_options(int argc, char **argv) {
