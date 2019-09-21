@@ -38,7 +38,7 @@ void TreasureHunt::read_data() {
 		} else if (!comment && junk.empty()) { // if empty line
 			continue;
 		} else { // reading map content
-			if (is_map) {
+			if (is_map) { // input is map format
 				for (int i = 0; i < map_size; ++i) {
 					map[static_cast<size_t>(row)][static_cast<size_t>(col)] \
 						= junk[static_cast<size_t>(i)];
@@ -52,7 +52,7 @@ void TreasureHunt::read_data() {
 				}
 				++row;
 				col = 0;
-			} else {
+			} else { // input is list format
 				map[static_cast<size_t>(junk[0]-'0')][static_cast<size_t> \
 					(junk[2]-'0')] = junk[4];
 				if (junk[4] == '@') {
@@ -385,15 +385,15 @@ inline bool TreasureHunt::is_treasure(Cell c, char dir) {
 
 void TreasureHunt::captain_do() {
 	if (sea.empty()) {
-		if (!treasure_found) {
-			if (print_verbose) {
-				cout << "Treasure hunt failed\n";
-			}
-			cout << "No treasure found after investigating " << water_loc +
-				land_loc << " locations.\n";
+		if (!treasure_found && print_verbose) {
+			cout << "Treasure hunt failed\n";
 		}
 		if (print_stats) {
 			print_hunt_stats();
+		}
+		if (!treasure_found) {
+			cout << "No treasure found after investigating " << water_loc +
+				land_loc << " locations.\n";
 		}
 		print_path();
 		return;
