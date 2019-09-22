@@ -18,16 +18,16 @@ class Cell {
 	public:
 		Cell(const short n, const short m) : row(n), col(m) {}
 		Cell north() {
-			return Cell(row-1, col);
+			return Cell(static_cast<short>(row-1), static_cast<short>(col));
 		};
 		Cell east() {
-			return Cell(row, col+1);
+			return Cell(static_cast<short>(row), static_cast<short>(col+1));
 		};
 		Cell south() {
-			return Cell(row+1, col);
+			return Cell(static_cast<short>(row+1), static_cast<short>(col));
 		};
 		Cell west() {
-			return Cell(row, col-1);
+			return Cell(static_cast<short>(row), static_cast<short>(col-1));
 		};
 		// Print cell in row,col format in single line
 		inline void output() {
