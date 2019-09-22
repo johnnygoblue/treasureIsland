@@ -412,7 +412,7 @@ void TreasureHunt::captain_do() {
 					}
 					break;
 				default:
-					cerr << "Bad direction in " << __func__ << endl;
+					cerr << "Bad direction '" << order[i] << "' in " << __func__ << endl;
 			} // switch
 			if (treasure_found) {
 				break;
