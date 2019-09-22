@@ -18,7 +18,7 @@ using std::stoi;
 void TreasureHunt::read_data() {
 	vector<string> ctt;
 	string junk;
-	int row = 0, col = 0;
+	short row = 0, col = 0;
 	bool comment = true;
     bool is_map = false;
 	char ch;
@@ -34,7 +34,7 @@ void TreasureHunt::read_data() {
 		} else if (is_number(junk)) { // if line is map size
 			map_size = stoi(junk);
 			map.resize(static_cast<size_t>(map_size));
-			for (int i = 0; i < map_size; ++i) {
+			for (int8_t i = 0; i < map_size; ++i) {
 				map[static_cast<size_t>(i)].resize(static_cast<size_t> \
 						(map_size), '.');
 			}
@@ -42,7 +42,7 @@ void TreasureHunt::read_data() {
 			continue;
 		} else { // reading map content
 			if (is_map) { // input is map format
-				for (int i = 0; i < map_size; ++i) {
+				for (int8_t i = 0; i < map_size; ++i) {
 					map[static_cast<size_t>(row)][static_cast<size_t>(col)] \
 						= junk[static_cast<size_t>(i)];
 					if (map[static_cast<size_t>(row)][static_cast<size_t> \
@@ -59,12 +59,12 @@ void TreasureHunt::read_data() {
 				std::stringstream iss(junk);
 				string temp;
 				ctt.resize(3);
-				for (int i = 0; i < 3; ++i) {
+				for (int8_t i = 0; i < 3; ++i) {
 					iss >> temp;
 					ctt[static_cast<size_t>(i)] = temp;
 				}
-				row = (stoi(ctt[0]));
-				col = (stoi(ctt[1]));
+				row = ((short)stoi(ctt[0]));
+				col = ((short)stoi(ctt[1]));
 				ch = ctt[2][0];
 				map[static_cast<size_t>(row)][static_cast<size_t>(col)] = ch;
 				if (ch == '@') {
@@ -82,8 +82,8 @@ void TreasureHunt::get_options(int argc, char **argv) {
 	string queue = "queue";
 	int option_index = 0, option = 0;
 	opterr = false;
-	int dir_count[4] = {-1, -1, -1, -1}; // count N, E, S, W
-	int cnt_show_path = 0;
+	int8_t dir_count[4] = {-1, -1, -1, -1}; // count N, E, S, W
+	short cnt_show_path = 0;
 
 	struct option longOpts[] = {{ "captain", required_argument, nullptr, 'c' },
 								{ "first-mate", required_argument, nullptr, 'f'},
@@ -120,7 +120,7 @@ void TreasureHunt::get_options(int argc, char **argv) {
 					cerr << "Wrong number of directions in hunt-order" << endl;
 					exit(1);
 				} //if
-				for (int i = 0; i < 4; ++i) {
+				for (int8_t i = 0; i < 4; ++i) {
 					switch (optarg[i]) {
 						case 'n':
 							dir_count[0]++;
@@ -139,7 +139,7 @@ void TreasureHunt::get_options(int argc, char **argv) {
 							exit(1);
 					} // switch
 				} // for
-				for (int i = 0; i < 4; ++i) {
+				for (int8_t i = 0; i < 4; ++i) {
 					if (dir_count[i]) {
 						cerr << "Direction mismatch in hunt order" << endl;
 						exit(1);
@@ -198,9 +198,9 @@ bool TreasureHunt::is_number(const string &s) {
 
 void TreasureHunt::print_map() {
 	char ch;
-	for (int i = 0; i < map_size; ++i) {
-		for (int j = 0; j < map_size; ++j) {
-			ch = map[static_cast<size_t>(i)][static_cast<size_t>(j)];
+	for (unsigned short i = 0; i < map_size; ++i) {
+		for (unsigned short j = 0; j < map_size; ++j) {
+			ch = map[i][j];
 			if (ch == '-' || ch == '|' || ch == '+' || ch == 'X' || ch == '@' ||
 					ch == '.' || ch == 'o' || ch == '#') {
 				cout << ch;
@@ -372,7 +372,7 @@ void TreasureHunt::captain_do() {
 		}
 
 		// explore surrounding cells
-		for (int i = 0; i < 4; ++i) {
+		for (int8_t i = 0; i < 4; ++i) {
 			switch (order[i]) {
 				case 'N':
 					if (is_ashore(curr, 'N')) {
@@ -469,7 +469,7 @@ void TreasureHunt::first_mate_do() {
 			curr = land.front();
 			land.pop_front();
 		}
-		for (int i = 0; i < 4; ++i) {
+		for (int8_t i = 0; i < 4; ++i) {
 			switch (order[i]) {
 				case 'N':
 					if (add_cell(curr.north(), true, 'N')) {

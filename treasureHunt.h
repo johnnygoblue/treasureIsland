@@ -16,7 +16,7 @@ using std::endl;
 
 class Cell {
 	public:
-		Cell(const int n, const int m) : row(n), col(m) {}
+		Cell(const short n, const short m) : row(n), col(m) {}
 		inline Cell north() {
 			return Cell(row-1, col);
 		};
@@ -55,8 +55,8 @@ class Cell {
 			} // switch
 			return ret;
 		}
-		int row;
-		int col;
+		short row;
+		short col;
 };
 
 class TreasureHunt {
