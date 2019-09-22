@@ -129,17 +129,17 @@ class TreasureHunt {
 
 		Cell start = Cell(-1, -1);
 
+		unsigned int ashore = 0;
+
+		unsigned int water_loc = 0;
+
+		unsigned int land_loc = 0;
+
+		unsigned int path_length = 0;
+
 		unsigned short map_size = 0;
 
 		char order[4] = {'N', 'E', 'S', 'W'};
-
-		unsigned short path_length = 0;
-
-		unsigned short water_loc = 0;
-
-		unsigned short land_loc = 0;
-
-		unsigned short ashore = 0;
 
 		char capt_mode = 's';
 
