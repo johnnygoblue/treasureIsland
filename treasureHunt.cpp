@@ -80,7 +80,7 @@ void TreasureHunt::get_options(int argc, char **argv) {
 	int option_index = 0, option = 0;
 	opterr = false;
 	int8_t dir_count[4] = {-1, -1, -1, -1}; // count N, E, S, W
-	short cnt_show_path = 0;
+	uint8_t cnt_show_path = 0;
 
 	struct option longOpts[] = {{ "captain", required_argument, nullptr, 'c' },
 								{ "first-mate", required_argument, nullptr, 'f'},
@@ -369,7 +369,7 @@ void TreasureHunt::captain_do() {
 		}
 
 		// explore surrounding cells
-		for (int8_t i = 0; i < 4; ++i) {
+		for (uint8_t i = 0; i < 4; ++i) {
 			switch (order[i]) {
 				case 'N':
 					if (is_ashore(curr, 'N')) {
