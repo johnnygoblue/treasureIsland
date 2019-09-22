@@ -17,17 +17,17 @@ using std::endl;
 class Cell {
 	public:
 		Cell(const short n, const short m) : row(n), col(m) {}
-		inline Cell north() {
-			return Cell(row-1, col);
+		Cell north() {
+			return Cell(row-(short)1, col);
 		};
-		inline Cell east() {
-			return Cell(row, col+1);
+		Cell east() {
+			return Cell(row, col+(short)1);
 		};
-		inline Cell south() {
-			return Cell(row+1, col);
+		Cell south() {
+			return Cell(row+(short)1, col);
 		};
-		inline Cell west() {
-			return Cell(row, col-1);
+		Cell west() {
+			return Cell(row, col-(short)1);
 		};
 		// Print cell in row,col format in single line
 		inline void output() {

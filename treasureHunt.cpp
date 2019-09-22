@@ -18,7 +18,7 @@ using std::stoi;
 void TreasureHunt::read_data() {
 	vector<string> ctt;
 	string junk;
-	short row = 0, col = 0;
+	uint16_t row = 0, col = 0;
 	bool comment = true;
     bool is_map = false;
 	char ch;
@@ -33,20 +33,17 @@ void TreasureHunt::read_data() {
 			comment = false;
 		} else if (is_number(junk)) { // if line is map size
 			map_size = stoi(junk);
-			map.resize(static_cast<size_t>(map_size));
-			for (int8_t i = 0; i < map_size; ++i) {
-				map[static_cast<size_t>(i)].resize(static_cast<size_t> \
-						(map_size), '.');
+			map.resize(map_size);
+			for (uint16_t i = 0; i < map_size; ++i) {
+				map[i].resize(map_size, '.');
 			}
 		} else if (junk.empty()) { // if empty line
 			continue;
 		} else { // reading map content
 			if (is_map) { // input is map format
-				for (int8_t i = 0; i < map_size; ++i) {
-					map[static_cast<size_t>(row)][static_cast<size_t>(col)] \
-						= junk[static_cast<size_t>(i)];
-					if (map[static_cast<size_t>(row)][static_cast<size_t> \
-							(col)] == '@') {
+				for (uint16_t i = 0; i < map_size; ++i) {
+					map[row][col] = junk[i];
+					if (map[row][col] == '@') {
 						start.row = row;
 						start.col = col;
 						sea.push_back(start);
@@ -63,10 +60,10 @@ void TreasureHunt::read_data() {
 					iss >> temp;
 					ctt[static_cast<size_t>(i)] = temp;
 				}
-				row = ((short)stoi(ctt[0]));
-				col = ((short)stoi(ctt[1]));
+				row = ((uint16_t)stoi(ctt[0]));
+				col = ((uint16_t)stoi(ctt[1]));
 				ch = ctt[2][0];
-				map[static_cast<size_t>(row)][static_cast<size_t>(col)] = ch;
+				map[row][col] = ch;
 				if (ch == '@') {
 					start.row = row;
 					start.col = col;
