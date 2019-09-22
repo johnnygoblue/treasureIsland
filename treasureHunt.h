@@ -75,7 +75,9 @@ class TreasureHunt {
 
 	private:
 
-		inline char get_cell(Cell c);
+		char get_cell(Cell c) {
+			return map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)];
+		};
 
 		char set_curr_path(char prev, char curr);
 
@@ -83,19 +85,23 @@ class TreasureHunt {
 
 		inline bool is_land(Cell c);
 
-		inline bool cell_equal(Cell c1, Cell c2);
+		bool cell_equal(Cell c1, Cell c2) {
+			return (c1.row == c2.row) && (c1.col == c2.col);
+		};
 
-		inline bool is_in_bound(Cell c);
+		bool is_in_bound(Cell c);
 
 		bool is_valid_cell(Cell c, bool on_land);
 
-		inline bool is_ashore(Cell c, char dir);
+		bool is_ashore(Cell c, char dir);
 
-		inline bool is_treasure(Cell c, char dir);
+		bool is_treasure(Cell c, char dir);
 
 		bool add_cell(Cell c, bool on_land, char dir);
 
-		inline void set_cell(Cell c, const char ch);
+		void set_cell(Cell c, const char ch) {
+			map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] = ch;
+		};
 
 		void reset_cell(Cell c);
 

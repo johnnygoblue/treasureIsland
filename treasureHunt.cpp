@@ -188,11 +188,6 @@ void TreasureHunt::hunt() {
 	captain_do();
 }
 
-// Cell is valid cell before you call this function
-inline char TreasureHunt::get_cell(Cell c) {
-	return map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)];
-}
-
 bool TreasureHunt::is_number(const string &s) {
 	string::const_iterator it = s.begin();
 	while(it != s.end() && isdigit(*it)) {
@@ -252,15 +247,11 @@ bool TreasureHunt::is_valid_cell(Cell c, bool on_land) {
 	return true;
 }
 
-inline bool TreasureHunt::cell_equal(Cell c1, Cell c2) {
-	return (c1.row == c2.row) && (c1.col == c2.col);
-}
-
 inline bool TreasureHunt::is_land(Cell c) {
 	return map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == 'o';
 }
 
-inline bool TreasureHunt::is_in_bound(Cell c) {
+bool TreasureHunt::is_in_bound(Cell c) {
 	if (c.row < 0 || c.row >= map_size) {
 		return false;
 	}
@@ -270,16 +261,8 @@ inline bool TreasureHunt::is_in_bound(Cell c) {
 	return true;
 }
 
-// Set the content of cell c to given char ch
-inline void TreasureHunt::set_cell(Cell c, const char ch) {
-	if (!is_in_bound(c)) {
-		cerr << "Cell out of bound in " << __func__ << endl;
-	}
-	map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] = ch;
-}
-
 // Reset cell to either land or sea
-inline void TreasureHunt::reset_cell(Cell c) {
+void TreasureHunt::reset_cell(Cell c) {
 	char ch;
 	if (!is_in_bound(c)) {
 		cerr << "Cell out of bound in " << __func__ << endl;
@@ -298,7 +281,7 @@ inline void TreasureHunt::reset_cell(Cell c) {
 // This function should only be called when the Cell c is a sea cell
 // Given Cell c and diretion dir to c, return whether the target cell
 // is a land cell
-inline bool TreasureHunt::is_ashore(Cell c, char dir) {
+bool TreasureHunt::is_ashore(Cell c, char dir) {
 	Cell next(-1, -1);
 	switch (dir) {
 		case 'N':
@@ -343,7 +326,7 @@ inline bool TreasureHunt::is_ashore(Cell c, char dir) {
 
 // Make sure is_valid_cell returns true before you call this function
 // Check whether current cell is indeed treasure
-inline bool TreasureHunt::is_treasure(Cell c, char dir) {
+bool TreasureHunt::is_treasure(Cell c, char dir) {
 	if (map[static_cast<size_t>(c.row)][static_cast<size_t>(c.col)] == '$') {
 		treasure_found = true;
 		treasure.row = c.row;
