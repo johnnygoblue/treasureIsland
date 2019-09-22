@@ -32,7 +32,7 @@ void TreasureHunt::read_data() {
 			}
 			comment = false;
 		} else if (is_number(junk)) { // if line is map size
-			map_size = stoi(junk);
+			map_size = static_cast<unsigned short>(stoi(junk));
 			map.resize(map_size);
 			for (uint16_t i = 0; i < map_size; ++i) {
 				map[i].resize(map_size, '.');
@@ -44,8 +44,8 @@ void TreasureHunt::read_data() {
 				for (uint16_t i = 0; i < map_size; ++i) {
 					map[row][col] = junk[i];
 					if (map[row][col] == '@') {
-						start.row = row;
-						start.col = col;
+						start.row = static_cast<short>(row);
+						start.col = static_cast<short>(col);
 						sea.push_back(start);
 					}
 					++col;
@@ -65,8 +65,8 @@ void TreasureHunt::read_data() {
 				ch = ctt[2][0];
 				map[row][col] = ch;
 				if (ch == '@') {
-					start.row = row;
-					start.col = col;
+					start.row = static_cast<short>(row);
+					start.col = static_cast<short>(col);
 					sea.push_back(start);
 				}
 			}

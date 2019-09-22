@@ -18,16 +18,16 @@ class Cell {
 	public:
 		Cell(const short n, const short m) : row(n), col(m) {}
 		Cell north() {
-			return Cell(row-(short)1, col);
+			return Cell(row-1, col);
 		};
 		Cell east() {
-			return Cell(row, col+(short)1);
+			return Cell(row, col+1);
 		};
 		Cell south() {
-			return Cell(row+(short)1, col);
+			return Cell(row+1, col);
 		};
 		Cell west() {
-			return Cell(row, col-(short)1);
+			return Cell(row, col-1);
 		};
 		// Print cell in row,col format in single line
 		inline void output() {
@@ -129,7 +129,7 @@ class TreasureHunt {
 
 		Cell start = Cell(-1, -1);
 
-		int map_size = 0;
+		unsigned short map_size = 0;
 
 		char order[4] = {'N', 'E', 'S', 'W'};
 
