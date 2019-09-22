@@ -32,6 +32,7 @@ void TreasureHunt::read_data() {
 			}
 			comment = false;
 		} else if (is_number(junk)) { // if line is map size
+
 			map_size = static_cast<unsigned short>(stoi(junk));
 			map.resize(map_size);
 			for (uint16_t i = 0; i < map_size; ++i) {
