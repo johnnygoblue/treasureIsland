@@ -21,7 +21,7 @@ void TreasureHunt::read_data() {
 	uint16_t row = 0, col = 0;
 	bool comment = true;
     bool is_map = false;
-	char ch;
+	char ch = '\0';
 
 	while (getline(cin, junk, '\n')) {
 		if (junk[0] == '#' && comment) { // continue if is comment line
@@ -72,6 +72,7 @@ void TreasureHunt::read_data() {
 				}
 			}
 		}
+		junk.clear();
 	}
 }
 
@@ -213,10 +214,6 @@ void TreasureHunt::print_map() {
 		}
 		cout << "\n";
 	}
-}
-
-void TreasureHunt::print_cell(Cell c) {
-	cout << "" << c.row << "," << c.col << " ";
 }
 
 bool TreasureHunt::is_valid_cell(Cell c, bool on_land) {
@@ -521,20 +518,29 @@ void TreasureHunt::calculate_path_length() {
 
 // clean up sea and land container after treasure is found
 void TreasureHunt::clean_up() {
-	Cell c = Cell(-1,-1);
-	while (!land.empty()) {
-		c = land.back();
-		if (!cell_equal(c, treasure)) {
-			reset_cell(c);
+	if (show_path == 'f') {
+		while (!land.empty()) {
+			land.pop_back();
 		}
-		land.pop_back();
-	}
-	while (!sea.empty()) {
-		c = sea.back();
-		if (!cell_equal(c, start)) {
-			reset_cell(c);
+		while (!sea.empty()) {
+			sea.pop_back();
 		}
-		sea.pop_back();
+	} else {
+		Cell c = Cell(-1,-1);
+		while (!land.empty()) {
+			c = land.back();
+			if (!cell_equal(c, treasure)) {
+				reset_cell(c);
+			}
+			land.pop_back();
+		}
+		while (!sea.empty()) {
+			c = sea.back();
+			if (!cell_equal(c, start)) {
+				reset_cell(c);
+			}
+			sea.pop_back();
+		}
 	}
 }
 

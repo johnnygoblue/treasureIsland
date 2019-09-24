@@ -109,8 +109,6 @@ class TreasureHunt {
 
 		void first_mate_do();
 
-		void print_cell(Cell c);
-
 		void calculate_path_length();
 
 		void clean_up();
