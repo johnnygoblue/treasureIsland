@@ -196,7 +196,7 @@ bool TreasureHunt::is_number(const string &s) {
 }
 
 void TreasureHunt::print_map() {
-	char ch;
+	char ch = '\0';
 	for (unsigned short i = 0; i < map_size; ++i) {
 		for (unsigned short j = 0; j < map_size; ++j) {
 			ch = map[i][j];
@@ -217,7 +217,7 @@ void TreasureHunt::print_map() {
 }
 
 bool TreasureHunt::is_valid_cell(Cell c, bool on_land) {
-	char ch;
+	char ch = '\0';
 	// check if out of bounds
 	if (!is_in_bound(c)) {
 		return false;
@@ -258,7 +258,7 @@ bool TreasureHunt::is_in_bound(Cell c) {
 
 // Reset cell to either land or sea
 void TreasureHunt::reset_cell(Cell c) {
-	char ch;
+	char ch = '\0';
 	if (!is_in_bound(c)) {
 		cerr << "Cell out of bound in " << __func__ << endl;
 	}
