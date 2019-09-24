@@ -81,7 +81,7 @@ void TreasureHunt::get_options(int argc, char **argv) {
 	string queue = "queue";
 	int option_index = 0, option = 0;
 	opterr = false;
-	int8_t dir_count[4] = {-1, -1, -1, -1}; // count N, E, S, W
+	int8_t dir_count[4] = {0, 0, 0, 0}; // count N, E, S, W
 	uint8_t cnt_show_path = 0;
 
 	struct option longOpts[] = {{ "captain", required_argument, nullptr, 'c' },
@@ -139,11 +139,11 @@ void TreasureHunt::get_options(int argc, char **argv) {
 					} // switch
 				} // for
 				for (int8_t i = 0; i < 4; ++i) {
-					if (dir_count[i]) {
+					if (dir_count[i] != 1) {
 						cerr << "Direction mismatch in hunt order" << endl;
 						exit(1);
 					} // if
-					order[i] = (char) (optarg[i]-32); // lower to upper
+					order[i] = static_cast<char>(optarg[i]-32); // lower to upper
 				} // for
 				break;
 			case 'p':
@@ -151,10 +151,10 @@ void TreasureHunt::get_options(int argc, char **argv) {
 					cerr << "Show path can only be set once" << endl;
 					exit(1);
 				}
-				if (optarg[0] == 'M') {
+				if (optarg[0] == 'M' && optarg[1] == '\0') {
 					cnt_show_path++;
 					show_path = 'M';
-				} else if (optarg[0] == 'L') {
+				} else if (optarg[0] == 'L' && optarg[1] == '\0') {
 					cnt_show_path++;
 					show_path = 'L';
 				} else {
